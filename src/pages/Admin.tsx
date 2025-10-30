@@ -72,9 +72,10 @@ const Admin = () => {
 
   const checkAdminStatus = async (userId: string) => {
     const { data, error } = await supabase
-      .from("profiles")
-      .select("is_admin")
-      .eq("id", userId)
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId)
+      .eq("role", "admin")
       .maybeSingle();
 
     if (error) {
@@ -84,7 +85,7 @@ const Admin = () => {
       return;
     }
 
-    if (!data?.is_admin) {
+    if (!data) {
       toast.error("You don't have admin access. Please contact an administrator.");
       navigate("/");
     } else {
