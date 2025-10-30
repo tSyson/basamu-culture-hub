@@ -1,0 +1,97 @@
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Calendar, ExternalLink } from "lucide-react";
+import { format } from "date-fns";
+
+interface Event {
+  id: string;
+  title: string;
+  description: string;
+  event_date: string | null;
+  media_link: string | null;
+}
+
+const Events = () => {
+  const [events, setEvents] = useState<Event[]>([]);
+
+  useEffect(() => {
+    fetchEvents();
+  }, []);
+
+  const fetchEvents = async () => {
+    const { data, error } = await supabase
+      .from("events")
+      .select("*")
+      .order("event_date", { ascending: false });
+
+    if (error) {
+      console.error("Error fetching events:", error);
+    } else {
+      setEvents(data || []);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-earth">
+      <Navbar />
+      
+      <section className="container mx-auto px-4 py-20">
+        <div className="text-center mb-12 animate-fade-in">
+          <h1 className="text-5xl font-bold mb-4">Our Events</h1>
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+            Celebrating our culture through memorable gatherings, functions, and cultural celebrations
+          </p>
+        </div>
+
+        {/* Events Grid */}
+        {events.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">
+            {events.map((event) => (
+              <Card key={event.id} className="overflow-hidden animate-scale-in hover:shadow-lg transition-shadow">
+                <CardHeader className="bg-gradient-sunset text-primary-foreground">
+                  <CardTitle className="text-2xl">{event.title}</CardTitle>
+                  {event.event_date && (
+                    <div className="flex items-center gap-2 text-primary-foreground/90">
+                      <Calendar size={16} />
+                      <span className="text-sm">
+                        {format(new Date(event.event_date), "MMMM d, yyyy")}
+                      </span>
+                    </div>
+                  )}
+                </CardHeader>
+                <CardContent className="p-6 space-y-4">
+                  <p className="text-muted-foreground leading-relaxed">{event.description}</p>
+                  {event.media_link && (
+                    <a 
+                      href={event.media_link} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="inline-block"
+                    >
+                      <Button variant="outline" className="gap-2">
+                        View Photos/Videos
+                        <ExternalLink size={16} />
+                      </Button>
+                    </a>
+                  )}
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-20">
+            <p className="text-muted-foreground text-lg">No events have been added yet. Check back soon!</p>
+          </div>
+        )}
+      </section>
+
+      <Footer />
+    </div>
+  );
+};
+
+export default Events;
