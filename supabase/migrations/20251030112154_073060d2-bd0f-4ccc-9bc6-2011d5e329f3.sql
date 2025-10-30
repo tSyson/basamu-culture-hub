@@ -25,7 +25,7 @@ CREATE TABLE public.executives (
   position TEXT NOT NULL,
   role TEXT NOT NULL,
   year INTEGER NOT NULL,
-  photo_url TEXT,
+  photo_url NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
