@@ -56,7 +56,7 @@ const Home = () => {
               Welcome to BASAMU
             </h1>
             <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl animate-fade-in">
-              Banyankore Students Association at Makerere University
+              Banyankore Students Association at Muni University.
             </p>
           </div>
         </div>
