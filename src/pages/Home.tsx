@@ -56,7 +56,7 @@ const Home = () => {
               Welcome to BASAMU
             </h1>
             <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl animate-fade-in">
-              Banyankore Students Association at Muni University.
+              Banyakitara Students Association at Muni University.
             </p>
           </div>
         </div>
@@ -67,10 +67,14 @@ const Home = () => {
         <div className="max-w-4xl mx-auto text-center space-y-6 animate-scale-in">
           <h2 className="text-4xl font-bold">Our Mission</h2>
           <p className="text-lg text-muted-foreground leading-relaxed">
-            BASAMU is dedicated to celebrating, preserving, and promoting the rich cultural heritage of Western Uganda. 
-            We bring together students at Makerere University to foster unity, showcase our traditions, and create lasting 
-            bonds through cultural events, educational initiatives, and community engagement.
+            BASAMU is dedicated to promoting cultural and community awareness, social justice, equity, unity through  positive attitude towards development of the community and the nation at large.
           </p>
+          <h3 className="text-4xl font-bold"> our vision </h3>
+            <p>
+              To be model students in all walks of life Within the university and the community and the Nation in Target.
+            </p>
+         <h4 className="text-4xl font-bold"> Slogan </h4>
+          <p> "Banyakitara tubebamwe"</p>
         </div>
       </section>
 
