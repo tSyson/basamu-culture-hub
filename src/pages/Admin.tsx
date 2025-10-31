@@ -285,20 +285,48 @@ const Admin = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="exec-photo">Upload Photo</Label>
-                    <Input
-                      id="exec-photo"
-                      type="file"
-                      accept="image/*"
-                      onChange={handlePhotoUpload}
-                      disabled={uploading}
-                    />
-                    {uploading && <p className="text-sm text-muted-foreground">Uploading...</p>}
-                    {execPhoto && (
-                      <div className="mt-2">
-                        <img src={execPhoto} alt="Preview" className="w-24 h-24 object-cover rounded-lg border-2 border-primary" />
+                    <Label htmlFor="exec-photo">Executive Photo</Label>
+                    <div className="flex flex-col gap-3">
+                      <div className="flex items-center gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => document.getElementById('exec-photo')?.click()}
+                          disabled={uploading}
+                          className="w-full"
+                        >
+                          {uploading ? "Uploading..." : "Choose Photo from Device"}
+                        </Button>
                       </div>
-                    )}
+                      <Input
+                        id="exec-photo"
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp"
+                        onChange={handlePhotoUpload}
+                        disabled={uploading}
+                        className="hidden"
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        Supported: JPG, PNG, WEBP • Max size: 5MB • Recommended: 400x400px or larger
+                      </p>
+                      {execPhoto && (
+                        <div className="flex items-center gap-3 p-3 border rounded-lg bg-muted/50">
+                          <img src={execPhoto} alt="Preview" className="w-16 h-16 object-cover rounded-lg border-2 border-primary" />
+                          <div className="flex-1">
+                            <p className="text-sm font-medium">Photo uploaded successfully</p>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setExecPhoto("")}
+                              className="h-auto p-0 text-xs text-destructive hover:text-destructive"
+                            >
+                              Remove
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
                   <Button type="submit" className="w-full" disabled={uploading}>
                     Add Executive
