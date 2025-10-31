@@ -31,6 +31,8 @@ const Admin = () => {
   const [eventDescription, setEventDescription] = useState("");
   const [eventDate, setEventDate] = useState("");
   const [eventMediaLink, setEventMediaLink] = useState("");
+  const [eventImageUrl, setEventImageUrl] = useState("");
+  const [uploadingEventImage, setUploadingEventImage] = useState(false);
 
   // Cultural image form state
   const [imageUrl, setImageUrl] = useState("");
@@ -167,6 +169,46 @@ const Admin = () => {
     }
   };
 
+  const handleEventImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast.error("Please upload an image file");
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image size should be less than 5MB");
+      return;
+    }
+
+    setUploadingEventImage(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+      const filePath = fileName;
+
+      const { error: uploadError } = await supabase.storage
+        .from('event-images')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('event-images')
+        .getPublicUrl(filePath);
+
+      setEventImageUrl(publicUrl);
+      toast.success("Event image uploaded successfully");
+    } catch (error) {
+      console.error('Error uploading event image:', error);
+      toast.error("Failed to upload event image");
+    } finally {
+      setUploadingEventImage(false);
+    }
+  };
+
   const handleAddEvent = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -175,6 +217,7 @@ const Admin = () => {
       description: eventDescription,
       event_date: eventDate || null,
       media_link: eventMediaLink || null,
+      image_url: eventImageUrl || null,
     });
 
     if (error) {
@@ -186,6 +229,7 @@ const Admin = () => {
       setEventDescription("");
       setEventDate("");
       setEventMediaLink("");
+      setEventImageUrl("");
     }
   };
 
@@ -380,7 +424,51 @@ const Admin = () => {
                       onChange={(e) => setEventMediaLink(e.target.value)}
                     />
                   </div>
-                  <Button type="submit" className="w-full">
+                  <div className="space-y-2">
+                    <Label htmlFor="event-image">Event Image (optional)</Label>
+                    <div className="flex flex-col gap-3">
+                      <div className="flex items-center gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => document.getElementById('event-image')?.click()}
+                          disabled={uploadingEventImage}
+                          className="w-full"
+                        >
+                          {uploadingEventImage ? "Uploading..." : "Choose Image from Device"}
+                        </Button>
+                      </div>
+                      <Input
+                        id="event-image"
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp"
+                        onChange={handleEventImageUpload}
+                        disabled={uploadingEventImage}
+                        className="hidden"
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        Supported: JPG, PNG, WEBP • Max size: 5MB
+                      </p>
+                      {eventImageUrl && (
+                        <div className="flex items-center gap-3 p-3 border rounded-lg bg-muted/50">
+                          <img src={eventImageUrl} alt="Preview" className="w-16 h-16 object-cover rounded-lg border-2 border-primary" />
+                          <div className="flex-1">
+                            <p className="text-sm font-medium">Image uploaded successfully</p>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setEventImageUrl("")}
+                              className="h-auto p-0 text-xs text-destructive hover:text-destructive"
+                            >
+                              Remove
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <Button type="submit" className="w-full" disabled={uploadingEventImage}>
                     Add Event
                   </Button>
                 </form>

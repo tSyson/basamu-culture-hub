@@ -13,6 +13,7 @@ interface Event {
   description: string;
   event_date: string | null;
   media_link: string | null;
+  image_url: string | null;
 }
 
 const Events = () => {
@@ -52,6 +53,15 @@ const Events = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">
             {events.map((event) => (
               <Card key={event.id} className="overflow-hidden animate-scale-in hover:shadow-lg transition-shadow">
+                {event.image_url && (
+                  <div className="aspect-video w-full overflow-hidden">
+                    <img 
+                      src={event.image_url} 
+                      alt={event.title}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
                 <CardHeader className="bg-gradient-sunset text-primary-foreground">
                   <CardTitle className="text-2xl">{event.title}</CardTitle>
                   {event.event_date && (
