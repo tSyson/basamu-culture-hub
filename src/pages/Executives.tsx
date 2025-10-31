@@ -79,10 +79,8 @@ const Executives = () => {
               <Card key={exec.id} className="overflow-hidden animate-scale-in hover:shadow-lg transition-shadow">
                 <CardContent className="p-6">
                   <div className="flex flex-col items-center text-center space-y-4">
-                    <div className="w-24 h-24 border-4 border-primary">
-                      <img src={exec.photo_url || undefined} alt={exec.name}
-                        className="W-full h-full object-cover />
-                      </div>
+                    <Avatar className="w-24 h-24 border-4 border-primary">
+                      <AvatarImage src={exec.photo_url || undefined} alt={exec.name} className="object-cover" />
                       <AvatarFallback className="bg-primary text-primary-foreground text-2xl">
                         {exec.name.split(' ').map(n => n[0]).join('')}
                       </AvatarFallback>
