@@ -24,6 +24,7 @@ const Admin = () => {
   const [execRole, setExecRole] = useState("");
   const [execYear, setExecYear] = useState(new Date().getFullYear());
   const [execPhoto, setExecPhoto] = useState("");
+  const [uploading, setUploading] = useState(false);
 
   // Event form state
   const [eventTitle, setEventTitle] = useState("");
@@ -98,6 +99,49 @@ const Admin = () => {
     await supabase.auth.signOut();
     toast.success("Logged out successfully");
     navigate("/");
+  };
+
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast.error("Please upload an image file");
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image size should be less than 5MB");
+      return;
+    }
+
+    setUploading(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+      const filePath = fileName;
+
+      const { error: uploadError, data } = await supabase.storage
+        .from('executive-photos')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('executive-photos')
+        .getPublicUrl(filePath);
+
+      setExecPhoto(publicUrl);
+      toast.success("Photo uploaded successfully");
+    } catch (error) {
+      console.error('Error uploading photo:', error);
+      toast.error("Failed to upload photo");
+    } finally {
+      setUploading(false);
+    }
   };
 
   const handleAddExecutive = async (e: React.FormEvent) => {
@@ -241,15 +285,22 @@ const Admin = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="exec-photo">Photo URL (optional)</Label>
+                    <Label htmlFor="exec-photo">Upload Photo</Label>
                     <Input
                       id="exec-photo"
-                      placeholder="https://example.com/photo.jpg"
-                      value={execPhoto}
-                      onChange={(e) => setExecPhoto(e.target.value)}
+                      type="file"
+                      accept="image/*"
+                      onChange={handlePhotoUpload}
+                      disabled={uploading}
                     />
+                    {uploading && <p className="text-sm text-muted-foreground">Uploading...</p>}
+                    {execPhoto && (
+                      <div className="mt-2">
+                        <img src={execPhoto} alt="Preview" className="w-24 h-24 object-cover rounded-lg border-2 border-primary" />
+                      </div>
+                    )}
                   </div>
-                  <Button type="submit" className="w-full">
+                  <Button type="submit" className="w-full" disabled={uploading}>
                     Add Executive
                   </Button>
                 </form>
