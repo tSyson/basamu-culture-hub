@@ -37,10 +37,43 @@ const Admin = () => {
   // Cultural image form state
   const [imageUrl, setImageUrl] = useState("");
   const [imageCaption, setImageCaption] = useState("");
+  const [uploadingCulturalImage, setUploadingCulturalImage] = useState(false);
+
+  // Home content form state
+  const [heroTitle, setHeroTitle] = useState("");
+  const [heroSubtitle, setHeroSubtitle] = useState("");
+  const [missionText, setMissionText] = useState("");
+  const [visionText, setVisionText] = useState("");
+  const [slogan, setSlogan] = useState("");
+  const [homeContentId, setHomeContentId] = useState<string | null>(null);
 
   useEffect(() => {
     checkAuth();
   }, []);
+
+  useEffect(() => {
+    if (isAdmin) {
+      fetchHomeContent();
+    }
+  }, [isAdmin]);
+
+  const fetchHomeContent = async () => {
+    const { data, error } = await supabase
+      .from("home_content")
+      .select("*")
+      .single();
+
+    if (error) {
+      console.error("Error fetching home content:", error);
+    } else if (data) {
+      setHeroTitle(data.hero_title);
+      setHeroSubtitle(data.hero_subtitle);
+      setMissionText(data.mission_text);
+      setVisionText(data.vision_text);
+      setSlogan(data.slogan);
+      setHomeContentId(data.id);
+    }
+  };
 
   const checkAuth = async () => {
     // Set up auth state listener FIRST
@@ -233,6 +266,46 @@ const Admin = () => {
     }
   };
 
+  const handleCulturalImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast.error("Please upload an image file");
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image size should be less than 5MB");
+      return;
+    }
+
+    setUploadingCulturalImage(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+      const filePath = fileName;
+
+      const { error: uploadError } = await supabase.storage
+        .from('cultural-images')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('cultural-images')
+        .getPublicUrl(filePath);
+
+      setImageUrl(publicUrl);
+      toast.success("Cultural image uploaded successfully");
+    } catch (error) {
+      console.error('Error uploading cultural image:', error);
+      toast.error("Failed to upload cultural image");
+    } finally {
+      setUploadingCulturalImage(false);
+    }
+  };
+
   const handleAddCulturalImage = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -248,6 +321,34 @@ const Admin = () => {
       toast.success("Cultural image added successfully");
       setImageUrl("");
       setImageCaption("");
+    }
+  };
+
+  const handleUpdateHomeContent = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!homeContentId) {
+      toast.error("Home content not found");
+      return;
+    }
+
+    const { error } = await supabase
+      .from("home_content")
+      .update({
+        hero_title: heroTitle,
+        hero_subtitle: heroSubtitle,
+        mission_text: missionText,
+        vision_text: visionText,
+        slogan: slogan,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", homeContentId);
+
+    if (error) {
+      toast.error("Failed to update home content");
+      console.error(error);
+    } else {
+      toast.success("Home content updated successfully");
     }
   };
 
@@ -276,10 +377,11 @@ const Admin = () => {
         </div>
 
         <Tabs defaultValue="executives" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3 max-w-2xl">
+          <TabsList className="grid w-full grid-cols-4 max-w-3xl">
             <TabsTrigger value="executives">Executives</TabsTrigger>
             <TabsTrigger value="events">Events</TabsTrigger>
             <TabsTrigger value="gallery">Gallery</TabsTrigger>
+            <TabsTrigger value="home">Home Page</TabsTrigger>
           </TabsList>
 
           <TabsContent value="executives">
@@ -484,14 +586,48 @@ const Admin = () => {
               <CardContent>
                 <form onSubmit={handleAddCulturalImage} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="image-url">Image URL</Label>
-                    <Input
-                      id="image-url"
-                      placeholder="https://example.com/image.jpg"
-                      value={imageUrl}
-                      onChange={(e) => setImageUrl(e.target.value)}
-                      required
-                    />
+                    <Label htmlFor="cultural-image">Cultural Image</Label>
+                    <div className="flex flex-col gap-3">
+                      <div className="flex items-center gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => document.getElementById('cultural-image')?.click()}
+                          disabled={uploadingCulturalImage}
+                          className="w-full"
+                        >
+                          {uploadingCulturalImage ? "Uploading..." : "Choose Image from Device"}
+                        </Button>
+                      </div>
+                      <Input
+                        id="cultural-image"
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp"
+                        onChange={handleCulturalImageUpload}
+                        disabled={uploadingCulturalImage}
+                        className="hidden"
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        Supported: JPG, PNG, WEBP • Max size: 5MB
+                      </p>
+                      {imageUrl && (
+                        <div className="flex items-center gap-3 p-3 border rounded-lg bg-muted/50">
+                          <img src={imageUrl} alt="Preview" className="w-16 h-16 object-cover rounded-lg border-2 border-primary" />
+                          <div className="flex-1">
+                            <p className="text-sm font-medium">Image uploaded successfully</p>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setImageUrl("")}
+                              className="h-auto p-0 text-xs text-destructive hover:text-destructive"
+                            >
+                              Remove
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="image-caption">Caption</Label>
@@ -503,8 +639,70 @@ const Admin = () => {
                       required
                     />
                   </div>
-                  <Button type="submit" className="w-full">
+                  <Button type="submit" className="w-full" disabled={uploadingCulturalImage || !imageUrl}>
                     Add Image
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="home">
+            <Card>
+              <CardHeader>
+                <CardTitle>Edit Home Page Content</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleUpdateHomeContent} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="hero-title">Hero Title</Label>
+                    <Input
+                      id="hero-title"
+                      value={heroTitle}
+                      onChange={(e) => setHeroTitle(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="hero-subtitle">Hero Subtitle</Label>
+                    <Input
+                      id="hero-subtitle"
+                      value={heroSubtitle}
+                      onChange={(e) => setHeroSubtitle(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="mission-text">Mission Text</Label>
+                    <Textarea
+                      id="mission-text"
+                      value={missionText}
+                      onChange={(e) => setMissionText(e.target.value)}
+                      rows={4}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="vision-text">Vision Text</Label>
+                    <Textarea
+                      id="vision-text"
+                      value={visionText}
+                      onChange={(e) => setVisionText(e.target.value)}
+                      rows={4}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="slogan">Slogan</Label>
+                    <Input
+                      id="slogan"
+                      value={slogan}
+                      onChange={(e) => setSlogan(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <Button type="submit" className="w-full">
+                    Update Home Content
                   </Button>
                 </form>
               </CardContent>

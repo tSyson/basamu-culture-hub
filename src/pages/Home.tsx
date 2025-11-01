@@ -13,11 +13,27 @@ interface CulturalImage {
   caption: string;
 }
 
+interface HomeContent {
+  hero_title: string;
+  hero_subtitle: string;
+  mission_text: string;
+  vision_text: string;
+  slogan: string;
+}
+
 const Home = () => {
   const [culturalImages, setCulturalImages] = useState<CulturalImage[]>([]);
+  const [homeContent, setHomeContent] = useState<HomeContent>({
+    hero_title: "Welcome to BASAMU",
+    hero_subtitle: "Banyakitara Students Association at Muni University.",
+    mission_text: "BASAMU is dedicated to promoting cultural and community awareness, social justice, equity, unity through positive attitude towards development of the community and the nation at large.",
+    vision_text: "To be model students in all walks of life Within the university and the community and the Nation in Target.",
+    slogan: "Banyakitara tubebamwe"
+  });
 
   useEffect(() => {
     fetchCulturalImages();
+    fetchHomeContent();
   }, []);
 
   const fetchCulturalImages = async () => {
@@ -30,6 +46,25 @@ const Home = () => {
       console.error("Error fetching cultural images:", error);
     } else {
       setCulturalImages(data || []);
+    }
+  };
+
+  const fetchHomeContent = async () => {
+    const { data, error } = await supabase
+      .from("home_content")
+      .select("*")
+      .single();
+
+    if (error) {
+      console.error("Error fetching home content:", error);
+    } else if (data) {
+      setHomeContent({
+        hero_title: data.hero_title,
+        hero_subtitle: data.hero_subtitle,
+        mission_text: data.mission_text,
+        vision_text: data.vision_text,
+        slogan: data.slogan
+      });
     }
   };
 
@@ -53,10 +88,10 @@ const Home = () => {
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent flex items-end">
           <div className="container mx-auto px-4 pb-20">
             <h1 className="text-5xl md:text-7xl font-bold text-foreground mb-4 animate-fade-in">
-              Welcome to BASAMU
+              {homeContent.hero_title}
             </h1>
             <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl animate-fade-in">
-              Banyakitara Students Association at Muni University.
+              {homeContent.hero_subtitle}
             </p>
           </div>
         </div>
@@ -67,14 +102,14 @@ const Home = () => {
         <div className="max-w-4xl mx-auto text-center space-y-6 animate-scale-in">
           <h2 className="text-4xl font-bold">Our Mission</h2>
           <p className="text-lg text-muted-foreground leading-relaxed">
-            BASAMU is dedicated to promoting cultural and community awareness, social justice, equity, unity through  positive attitude towards development of the community and the nation at large.
+            {homeContent.mission_text}
           </p>
-          <h3 className="text-4xl font-bold"> our vision </h3>
-            <p>
-              To be model students in all walks of life Within the university and the community and the Nation in Target.
-            </p>
-         <h4 className="text-4xl font-bold"> Slogan </h4>
-          <p> "Banyakitara tubebamwe"</p>
+          <h3 className="text-4xl font-bold">Our Vision</h3>
+          <p className="text-lg text-muted-foreground leading-relaxed">
+            {homeContent.vision_text}
+          </p>
+          <h4 className="text-4xl font-bold">Slogan</h4>
+          <p className="text-lg text-muted-foreground leading-relaxed">"{homeContent.slogan}"</p>
         </div>
       </section>
 

@@ -95,6 +95,39 @@ export type Database = {
         }
         Relationships: []
       }
+      home_content: {
+        Row: {
+          created_at: string | null
+          hero_subtitle: string
+          hero_title: string
+          id: string
+          mission_text: string
+          slogan: string
+          updated_at: string | null
+          vision_text: string
+        }
+        Insert: {
+          created_at?: string | null
+          hero_subtitle?: string
+          hero_title?: string
+          id?: string
+          mission_text?: string
+          slogan?: string
+          updated_at?: string | null
+          vision_text?: string
+        }
+        Update: {
+          created_at?: string | null
+          hero_subtitle?: string
+          hero_title?: string
+          id?: string
+          mission_text?: string
+          slogan?: string
+          updated_at?: string | null
+          vision_text?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string | null
