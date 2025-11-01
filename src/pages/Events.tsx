@@ -54,12 +54,20 @@ const Events = () => {
             {events.map((event) => (
               <Card key={event.id} className="overflow-hidden animate-scale-in hover:shadow-lg transition-shadow">
                 {event.image_url && (
-                  <div className="aspect-video w-full overflow-hidden">
-                    <img 
-                      src={event.image_url} 
-                      alt={event.title}
-                      className="w-full h-full object-cover"
-                    />
+                  <div className="aspect-video w-full overflow-hidden bg-black">
+                    {event.image_url.includes('.mp4') || event.image_url.includes('.webm') || event.image_url.includes('.mov') ? (
+                      <video 
+                        src={event.image_url} 
+                        controls
+                        className="w-full h-full object-contain"
+                      />
+                    ) : (
+                      <img 
+                        src={event.image_url} 
+                        alt={event.title}
+                        className="w-full h-full object-cover"
+                      />
+                    )}
                   </div>
                 )}
                 <CardHeader className="bg-gradient-sunset text-primary-foreground">
@@ -83,7 +91,7 @@ const Events = () => {
                       className="inline-block"
                     >
                       <Button variant="outline" className="gap-2">
-                        View Photos/Videos
+                        View Google Photos Album
                         <ExternalLink size={16} />
                       </Button>
                     </a>

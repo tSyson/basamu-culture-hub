@@ -38,6 +38,7 @@ const Admin = () => {
   const [imageUrl, setImageUrl] = useState("");
   const [imageCaption, setImageCaption] = useState("");
   const [uploadingCulturalImage, setUploadingCulturalImage] = useState(false);
+  const [culturalImages, setCulturalImages] = useState<Array<{ id: string; image_url: string; caption: string }>>([]);
 
   // Home content form state
   const [heroTitle, setHeroTitle] = useState("");
@@ -54,6 +55,7 @@ const Admin = () => {
   useEffect(() => {
     if (isAdmin) {
       fetchHomeContent();
+      fetchCulturalImages();
     }
   }, [isAdmin]);
 
@@ -206,13 +208,17 @@ const Admin = () => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (!file.type.startsWith('image/')) {
-      toast.error("Please upload an image file");
+    const isImage = file.type.startsWith('image/');
+    const isVideo = file.type.startsWith('video/');
+
+    if (!isImage && !isVideo) {
+      toast.error("Please upload an image or video file");
       return;
     }
 
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error("Image size should be less than 5MB");
+    const maxSize = isVideo ? 50 * 1024 * 1024 : 5 * 1024 * 1024;
+    if (file.size > maxSize) {
+      toast.error(isVideo ? "Video size should be less than 50MB" : "Image size should be less than 5MB");
       return;
     }
 
@@ -233,7 +239,7 @@ const Admin = () => {
         .getPublicUrl(filePath);
 
       setEventImageUrl(publicUrl);
-      toast.success("Event image uploaded successfully");
+      toast.success(isVideo ? "Event video uploaded successfully" : "Event image uploaded successfully");
     } catch (error) {
       console.error('Error uploading event image:', error);
       toast.error("Failed to upload event image");
@@ -306,6 +312,19 @@ const Admin = () => {
     }
   };
 
+  const fetchCulturalImages = async () => {
+    const { data, error } = await supabase
+      .from("cultural_images")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("Error fetching cultural images:", error);
+    } else {
+      setCulturalImages(data || []);
+    }
+  };
+
   const handleAddCulturalImage = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -321,6 +340,45 @@ const Admin = () => {
       toast.success("Cultural image added successfully");
       setImageUrl("");
       setImageCaption("");
+      fetchCulturalImages();
+    }
+  };
+
+  const handleDeleteCulturalImage = async (id: string, imageUrl: string) => {
+    if (!confirm("Are you sure you want to delete this image?")) return;
+
+    try {
+      // Extract file path from URL
+      const urlParts = imageUrl.split('/cultural-images/');
+      if (urlParts.length > 1) {
+        const filePath = urlParts[1];
+        
+        // Delete from storage
+        const { error: storageError } = await supabase.storage
+          .from('cultural-images')
+          .remove([filePath]);
+
+        if (storageError) {
+          console.error("Error deleting from storage:", storageError);
+        }
+      }
+
+      // Delete from database
+      const { error: dbError } = await supabase
+        .from("cultural_images")
+        .delete()
+        .eq("id", id);
+
+      if (dbError) {
+        toast.error("Failed to delete image");
+        console.error(dbError);
+      } else {
+        toast.success("Image deleted successfully");
+        fetchCulturalImages();
+      }
+    } catch (error) {
+      console.error("Error deleting image:", error);
+      toast.error("Failed to delete image");
     }
   };
 
@@ -518,16 +576,16 @@ const Admin = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="event-media">Google Drive/YouTube Link (optional)</Label>
+                    <Label htmlFor="event-media">Google Photos/Drive Link (optional)</Label>
                     <Input
                       id="event-media"
-                      placeholder="https://drive.google.com/... or https://youtube.com/..."
+                      placeholder="https://photos.google.com/... or https://drive.google.com/..."
                       value={eventMediaLink}
                       onChange={(e) => setEventMediaLink(e.target.value)}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="event-image">Event Image (optional)</Label>
+                    <Label htmlFor="event-image">Event Image/Video (optional)</Label>
                     <div className="flex flex-col gap-3">
                       <div className="flex items-center gap-2">
                         <Button
@@ -537,25 +595,29 @@ const Admin = () => {
                           disabled={uploadingEventImage}
                           className="w-full"
                         >
-                          {uploadingEventImage ? "Uploading..." : "Choose Image from Device"}
+                          {uploadingEventImage ? "Uploading..." : "Choose Image/Video from Device"}
                         </Button>
                       </div>
                       <Input
                         id="event-image"
                         type="file"
-                        accept="image/jpeg,image/png,image/webp"
+                        accept="image/jpeg,image/png,image/webp,video/mp4,video/webm,video/quicktime"
                         onChange={handleEventImageUpload}
                         disabled={uploadingEventImage}
                         className="hidden"
                       />
                       <p className="text-xs text-muted-foreground">
-                        Supported: JPG, PNG, WEBP • Max size: 5MB
+                        Images: JPG, PNG, WEBP (Max 5MB) • Videos: MP4, WEBM, MOV (Max 50MB)
                       </p>
                       {eventImageUrl && (
                         <div className="flex items-center gap-3 p-3 border rounded-lg bg-muted/50">
-                          <img src={eventImageUrl} alt="Preview" className="w-16 h-16 object-cover rounded-lg border-2 border-primary" />
+                          {eventImageUrl.includes('.mp4') || eventImageUrl.includes('.webm') || eventImageUrl.includes('.mov') ? (
+                            <video src={eventImageUrl} className="w-16 h-16 object-cover rounded-lg border-2 border-primary" />
+                          ) : (
+                            <img src={eventImageUrl} alt="Preview" className="w-16 h-16 object-cover rounded-lg border-2 border-primary" />
+                          )}
                           <div className="flex-1">
-                            <p className="text-sm font-medium">Image uploaded successfully</p>
+                            <p className="text-sm font-medium">Media uploaded successfully</p>
                             <Button
                               type="button"
                               variant="ghost"
@@ -579,72 +641,108 @@ const Admin = () => {
           </TabsContent>
 
           <TabsContent value="gallery">
-            <Card>
-              <CardHeader>
-                <CardTitle>Add Cultural Image</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={handleAddCulturalImage} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="cultural-image">Cultural Image</Label>
-                    <div className="flex flex-col gap-3">
-                      <div className="flex items-center gap-2">
-                        <Button
-                          type="button"
-                          variant="outline"
-                          onClick={() => document.getElementById('cultural-image')?.click()}
+            <div className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Add Cultural Image</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <form onSubmit={handleAddCulturalImage} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="cultural-image">Cultural Image</Label>
+                      <div className="flex flex-col gap-3">
+                        <div className="flex items-center gap-2">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => document.getElementById('cultural-image')?.click()}
+                            disabled={uploadingCulturalImage}
+                            className="w-full"
+                          >
+                            {uploadingCulturalImage ? "Uploading..." : "Choose Image from Device"}
+                          </Button>
+                        </div>
+                        <Input
+                          id="cultural-image"
+                          type="file"
+                          accept="image/jpeg,image/png,image/webp"
+                          onChange={handleCulturalImageUpload}
                           disabled={uploadingCulturalImage}
-                          className="w-full"
-                        >
-                          {uploadingCulturalImage ? "Uploading..." : "Choose Image from Device"}
-                        </Button>
+                          className="hidden"
+                        />
+                        <p className="text-xs text-muted-foreground">
+                          Supported: JPG, PNG, WEBP • Max size: 5MB
+                        </p>
+                        {imageUrl && (
+                          <div className="flex items-center gap-3 p-3 border rounded-lg bg-muted/50">
+                            <img src={imageUrl} alt="Preview" className="w-16 h-16 object-cover rounded-lg border-2 border-primary" />
+                            <div className="flex-1">
+                              <p className="text-sm font-medium">Image uploaded successfully</p>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setImageUrl("")}
+                                className="h-auto p-0 text-xs text-destructive hover:text-destructive"
+                              >
+                                Remove
+                              </Button>
+                            </div>
+                          </div>
+                        )}
                       </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="image-caption">Caption</Label>
                       <Input
-                        id="cultural-image"
-                        type="file"
-                        accept="image/jpeg,image/png,image/webp"
-                        onChange={handleCulturalImageUpload}
-                        disabled={uploadingCulturalImage}
-                        className="hidden"
+                        id="image-caption"
+                        placeholder="Brief description of the image"
+                        value={imageCaption}
+                        onChange={(e) => setImageCaption(e.target.value)}
+                        required
                       />
-                      <p className="text-xs text-muted-foreground">
-                        Supported: JPG, PNG, WEBP • Max size: 5MB
-                      </p>
-                      {imageUrl && (
-                        <div className="flex items-center gap-3 p-3 border rounded-lg bg-muted/50">
-                          <img src={imageUrl} alt="Preview" className="w-16 h-16 object-cover rounded-lg border-2 border-primary" />
-                          <div className="flex-1">
-                            <p className="text-sm font-medium">Image uploaded successfully</p>
+                    </div>
+                    <Button type="submit" className="w-full" disabled={uploadingCulturalImage || !imageUrl}>
+                      Add Image
+                    </Button>
+                  </form>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Manage Cultural Images</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {culturalImages.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {culturalImages.map((image) => (
+                        <div key={image.id} className="relative group border rounded-lg overflow-hidden">
+                          <img 
+                            src={image.image_url} 
+                            alt={image.caption}
+                            className="w-full h-48 object-cover"
+                          />
+                          <div className="p-3 bg-background/95">
+                            <p className="text-sm font-medium mb-2">{image.caption}</p>
                             <Button
-                              type="button"
-                              variant="ghost"
+                              variant="destructive"
                               size="sm"
-                              onClick={() => setImageUrl("")}
-                              className="h-auto p-0 text-xs text-destructive hover:text-destructive"
+                              onClick={() => handleDeleteCulturalImage(image.id, image.image_url)}
+                              className="w-full"
                             >
-                              Remove
+                              Delete Image
                             </Button>
                           </div>
                         </div>
-                      )}
+                      ))}
                     </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="image-caption">Caption</Label>
-                    <Input
-                      id="image-caption"
-                      placeholder="Brief description of the image"
-                      value={imageCaption}
-                      onChange={(e) => setImageCaption(e.target.value)}
-                      required
-                    />
-                  </div>
-                  <Button type="submit" className="w-full" disabled={uploadingCulturalImage || !imageUrl}>
-                    Add Image
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
+                  ) : (
+                    <p className="text-muted-foreground text-center py-8">No cultural images added yet</p>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
 
           <TabsContent value="home">
