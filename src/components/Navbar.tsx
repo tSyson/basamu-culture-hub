@@ -1,10 +1,25 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { User } from "@supabase/supabase-js";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   return (
     <nav className="bg-card border-b border-border sticky top-0 z-50 backdrop-blur-sm bg-card/90">
@@ -25,11 +40,19 @@ const Navbar = () => {
             <Link to="/events" className="text-foreground hover:text-primary transition-colors">
               Events
             </Link>
-            <Link to="/auth">
-              <Button className="bg-primary hover:bg-primary/90">
-                Admin
-              </Button>
-            </Link>
+            {user ? (
+              <Link to="/admin">
+                <Button className="bg-primary hover:bg-primary/90">
+                  Admin
+                </Button>
+              </Link>
+            ) : (
+              <Link to="/auth">
+                <Button className="bg-primary hover:bg-primary/90">
+                  Login / Register
+                </Button>
+              </Link>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -66,11 +89,19 @@ const Navbar = () => {
             >
               Events
             </Link>
-            <Link to="/auth" onClick={() => setIsOpen(false)}>
-              <Button className="w-full bg-primary hover:bg-primary/90">
-                Admin
-              </Button>
-            </Link>
+            {user ? (
+              <Link to="/admin" onClick={() => setIsOpen(false)}>
+                <Button className="w-full bg-primary hover:bg-primary/90">
+                  Admin
+                </Button>
+              </Link>
+            ) : (
+              <Link to="/auth" onClick={() => setIsOpen(false)}>
+                <Button className="w-full bg-primary hover:bg-primary/90">
+                  Login / Register
+                </Button>
+              </Link>
+            )}
           </div>
         )}
       </div>

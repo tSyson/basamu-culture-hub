@@ -72,6 +72,7 @@ export type Database = {
           name: string
           photo_url: string | null
           position: string
+          rank: number | null
           role: string
           year: number
         }
@@ -81,6 +82,7 @@ export type Database = {
           name: string
           photo_url?: string | null
           position: string
+          rank?: number | null
           role: string
           year: number
         }
@@ -90,6 +92,7 @@ export type Database = {
           name?: string
           photo_url?: string | null
           position?: string
+          rank?: number | null
           role?: string
           year?: number
         }
@@ -98,6 +101,7 @@ export type Database = {
       home_content: {
         Row: {
           created_at: string | null
+          hero_image_url: string | null
           hero_subtitle: string
           hero_title: string
           id: string
@@ -108,6 +112,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
+          hero_image_url?: string | null
           hero_subtitle?: string
           hero_title?: string
           id?: string
@@ -118,6 +123,7 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
+          hero_image_url?: string | null
           hero_subtitle?: string
           hero_title?: string
           id?: string

@@ -23,6 +23,7 @@ const Admin = () => {
   const [execPosition, setExecPosition] = useState("");
   const [execRole, setExecRole] = useState("");
   const [execYear, setExecYear] = useState(new Date().getFullYear());
+  const [execRank, setExecRank] = useState(0);
   const [execPhoto, setExecPhoto] = useState("");
   const [uploading, setUploading] = useState(false);
 
@@ -46,6 +47,8 @@ const Admin = () => {
   const [missionText, setMissionText] = useState("");
   const [visionText, setVisionText] = useState("");
   const [slogan, setSlogan] = useState("");
+  const [heroImageUrl, setHeroImageUrl] = useState("");
+  const [uploadingHeroImage, setUploadingHeroImage] = useState(false);
   const [homeContentId, setHomeContentId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -73,6 +76,7 @@ const Admin = () => {
       setMissionText(data.mission_text);
       setVisionText(data.vision_text);
       setSlogan(data.slogan);
+      setHeroImageUrl(data.hero_image_url || "");
       setHomeContentId(data.id);
     }
   };
@@ -189,6 +193,7 @@ const Admin = () => {
       position: execPosition,
       role: execRole,
       year: execYear,
+      rank: execRank,
       photo_url: execPhoto || null,
     });
 
@@ -200,6 +205,7 @@ const Admin = () => {
       setExecName("");
       setExecPosition("");
       setExecRole("");
+      setExecRank(0);
       setExecPhoto("");
     }
   };
@@ -382,6 +388,46 @@ const Admin = () => {
     }
   };
 
+  const handleHeroImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast.error("Please upload an image file");
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image size should be less than 5MB");
+      return;
+    }
+
+    setUploadingHeroImage(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `hero-${Date.now()}.${fileExt}`;
+      const filePath = fileName;
+
+      const { error: uploadError } = await supabase.storage
+        .from('cultural-images')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('cultural-images')
+        .getPublicUrl(filePath);
+
+      setHeroImageUrl(publicUrl);
+      toast.success("Hero image uploaded successfully");
+    } catch (error) {
+      console.error('Error uploading hero image:', error);
+      toast.error("Failed to upload hero image");
+    } finally {
+      setUploadingHeroImage(false);
+    }
+  };
+
   const handleUpdateHomeContent = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -398,6 +444,7 @@ const Admin = () => {
         mission_text: missionText,
         vision_text: visionText,
         slogan: slogan,
+        hero_image_url: heroImageUrl || null,
         updated_at: new Date().toISOString(),
       })
       .eq("id", homeContentId);
@@ -487,6 +534,19 @@ const Admin = () => {
                       onChange={(e) => setExecYear(parseInt(e.target.value))}
                       required
                     />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="exec-rank">Rank (for ordering, lower numbers appear first)</Label>
+                    <Input
+                      id="exec-rank"
+                      type="number"
+                      placeholder="0"
+                      value={execRank}
+                      onChange={(e) => setExecRank(parseInt(e.target.value) || 0)}
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Lower ranks appear first (e.g., 1=President, 2=Vice President, etc.)
+                    </p>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="exec-photo">Executive Photo</Label>
@@ -752,6 +812,50 @@ const Admin = () => {
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleUpdateHomeContent} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="hero-image">Hero Background Image</Label>
+                    <div className="flex flex-col gap-3">
+                      <div className="flex items-center gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => document.getElementById('hero-image')?.click()}
+                          disabled={uploadingHeroImage}
+                          className="w-full"
+                        >
+                          {uploadingHeroImage ? "Uploading..." : "Choose Hero Image from Device"}
+                        </Button>
+                      </div>
+                      <Input
+                        id="hero-image"
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp"
+                        onChange={handleHeroImageUpload}
+                        disabled={uploadingHeroImage}
+                        className="hidden"
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        Recommended: 1920x1080px or larger • Max size: 5MB
+                      </p>
+                      {heroImageUrl && (
+                        <div className="flex items-center gap-3 p-3 border rounded-lg bg-muted/50">
+                          <img src={heroImageUrl} alt="Hero preview" className="w-24 h-16 object-cover rounded-lg border-2 border-primary" />
+                          <div className="flex-1">
+                            <p className="text-sm font-medium">Hero image uploaded</p>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setHeroImageUrl("")}
+                              className="h-auto p-0 text-xs text-destructive hover:text-destructive"
+                            >
+                              Remove
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
                   <div className="space-y-2">
                     <Label htmlFor="hero-title">Hero Title</Label>
                     <Input

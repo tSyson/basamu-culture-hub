@@ -19,6 +19,7 @@ interface HomeContent {
   mission_text: string;
   vision_text: string;
   slogan: string;
+  hero_image_url?: string;
 }
 
 const Home = () => {
@@ -63,7 +64,8 @@ const Home = () => {
         hero_subtitle: data.hero_subtitle,
         mission_text: data.mission_text,
         vision_text: data.vision_text,
-        slogan: data.slogan
+        slogan: data.slogan,
+        hero_image_url: data.hero_image_url
       });
     }
   };
@@ -81,7 +83,7 @@ const Home = () => {
       {/* Hero Section */}
       <section className="relative h-[600px] overflow-hidden">
         <img 
-          src={heroImage} 
+          src={homeContent.hero_image_url || heroImage} 
           alt="Western Uganda cultural heritage" 
           className="w-full h-full object-cover"
         />

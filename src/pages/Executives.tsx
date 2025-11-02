@@ -28,6 +28,7 @@ const Executives = () => {
     const { data, error } = await supabase
       .from("executives")
       .select("*")
+      .order("rank", { ascending: true })
       .order("year", { ascending: false });
 
     if (error) {
