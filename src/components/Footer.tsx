@@ -12,6 +12,7 @@ const Footer = () => {
           <p className="text-sm text-muted-foreground">
             © {new Date().getFullYear()} BASAMU. All rights reserved.
           </p>
+          <p  className="text-sm text-muted-foreground> contact the designer @ +256 785393756 e-mail on tugumesyson76@gmail.com. D.Publicity Secretary 2025/2026</p>
         </div>
       </div>
     </footer>
