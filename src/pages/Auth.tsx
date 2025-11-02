@@ -10,7 +10,6 @@ import { User } from "@supabase/supabase-js";
 
 const Auth = () => {
   const navigate = useNavigate();
-  const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -46,28 +45,13 @@ const Auth = () => {
     setLoading(true);
 
     try {
-      if (isLogin) {
-        const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-        
-        if (error) throw error;
-        toast.success("Successfully logged in!");
-      } else {
-        const redirectUrl = `${window.location.origin}/`;
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            emailRedirectTo: redirectUrl,
-          },
-        });
-        
-        if (error) throw error;
-        toast.success("Account created! You can now log in.");
-        setIsLogin(true);
-      }
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      
+      if (error) throw error;
+      toast.success("Successfully logged in!");
     } catch (error: any) {
       toast.error(error.message || "An error occurred");
     } finally {
@@ -83,7 +67,7 @@ const Auth = () => {
             BASAMU Admin
           </CardTitle>
           <CardDescription className="text-center">
-            {isLogin ? "Sign in to manage content" : "Create an admin account"}
+            Sign in to access the admin panel
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -115,19 +99,9 @@ const Auth = () => {
               className="w-full bg-primary hover:bg-primary/90"
               disabled={loading}
             >
-              {loading ? "Loading..." : isLogin ? "Sign In" : "Sign Up"}
+              {loading ? "Loading..." : "Sign In"}
             </Button>
           </form>
-          
-          <div className="mt-4 text-center">
-            <button
-              type="button"
-              onClick={() => setIsLogin(!isLogin)}
-              className="text-sm text-primary hover:underline"
-            >
-              {isLogin ? "Need an account? Sign up" : "Already have an account? Sign in"}
-            </button>
-          </div>
         </CardContent>
       </Card>
     </div>
