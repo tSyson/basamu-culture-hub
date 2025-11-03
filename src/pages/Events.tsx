@@ -88,12 +88,9 @@ const Events = () => {
                       href={event.media_link} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="inline-block"
+                      className="text-primary hover:underline break-all"
                     >
-                      <Button variant="outline" className="gap-2">
-                        View Google Photos Album
-                        <ExternalLink size={16} />
-                      </Button>
+                      {event.media_link}
                     </a>
                   )}
                 </CardContent>
