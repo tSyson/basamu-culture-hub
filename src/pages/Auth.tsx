@@ -11,8 +11,12 @@ import { User } from "@supabase/supabase-js";
 const Auth = () => {
   const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(true);
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState<User | null>(null);
 
@@ -46,7 +50,15 @@ const Auth = () => {
     setLoading(true);
 
     try {
-      if (isLogin) {
+      if (isForgotPassword) {
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: `${window.location.origin}/auth`,
+        });
+        
+        if (error) throw error;
+        toast.success("Password reset email sent! Check your inbox.");
+        setIsForgotPassword(false);
+      } else if (isLogin) {
         const { error } = await supabase.auth.signInWithPassword({
           email,
           password,
@@ -55,12 +67,29 @@ const Auth = () => {
         if (error) throw error;
         toast.success("Successfully logged in!");
       } else {
+        // Validation for signup
+        if (password !== confirmPassword) {
+          toast.error("Passwords do not match!");
+          setLoading(false);
+          return;
+        }
+        
+        if (password.length < 6) {
+          toast.error("Password must be at least 6 characters long!");
+          setLoading(false);
+          return;
+        }
+
         const redirectUrl = `${window.location.origin}/`;
         const { error } = await supabase.auth.signUp({
           email,
           password,
           options: {
             emailRedirectTo: redirectUrl,
+            data: {
+              first_name: firstName,
+              last_name: lastName,
+            }
           },
         });
         
@@ -83,50 +112,132 @@ const Auth = () => {
             BASAMU
           </CardTitle>
           <CardDescription className="text-center">
-            {isLogin ? "Sign in to your account" : "Create a new account"}
+            {isForgotPassword 
+              ? "Reset your password" 
+              : isLogin 
+              ? "Sign in to your account" 
+              : "Create a new account"}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleAuth} className="space-y-4">
+            {!isLogin && !isForgotPassword && (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="firstName">First Name</Label>
+                  <Input
+                    id="firstName"
+                    type="text"
+                    placeholder="John"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="lastName">Last Name</Label>
+                  <Input
+                    id="lastName"
+                    type="text"
+                    placeholder="Doe"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    required
+                  />
+                </div>
+              </>
+            )}
+            
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
                 type="email"
-                placeholder="admin@basamu.org"
+                placeholder="your.email@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            </div>
+            
+            {!isForgotPassword && (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="password">Password</Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
+                </div>
+                
+                {!isLogin && (
+                  <div className="space-y-2">
+                    <Label htmlFor="confirmPassword">Confirm Password</Label>
+                    <Input
+                      id="confirmPassword"
+                      type="password"
+                      placeholder="••••••••"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      required
+                    />
+                  </div>
+                )}
+              </>
+            )}
+            
             <Button 
               type="submit" 
               className="w-full bg-primary hover:bg-primary/90"
               disabled={loading}
             >
-              {loading ? "Loading..." : isLogin ? "Sign In" : "Sign Up"}
+              {loading 
+                ? "Loading..." 
+                : isForgotPassword 
+                ? "Send Reset Link" 
+                : isLogin 
+                ? "Sign In" 
+                : "Sign Up"}
             </Button>
           </form>
           
-          <div className="mt-4 text-center">
-            <button
-              type="button"
-              onClick={() => setIsLogin(!isLogin)}
-              className="text-sm text-primary hover:underline"
-            >
-              {isLogin ? "Need an account? Sign up" : "Already have an account? Sign in"}
-            </button>
+          <div className="mt-4 text-center space-y-2">
+            {isLogin && !isForgotPassword && (
+              <button
+                type="button"
+                onClick={() => setIsForgotPassword(true)}
+                className="text-sm text-primary hover:underline block w-full"
+              >
+                Forgot password?
+              </button>
+            )}
+            
+            {!isForgotPassword && (
+              <button
+                type="button"
+                onClick={() => setIsLogin(!isLogin)}
+                className="text-sm text-primary hover:underline block w-full"
+              >
+                {isLogin ? "Need an account? Sign up" : "Already have an account? Sign in"}
+              </button>
+            )}
+            
+            {isForgotPassword && (
+              <button
+                type="button"
+                onClick={() => {
+                  setIsForgotPassword(false);
+                  setIsLogin(true);
+                }}
+                className="text-sm text-primary hover:underline block w-full"
+              >
+                Back to sign in
+              </button>
+            )}
           </div>
         </CardContent>
       </Card>

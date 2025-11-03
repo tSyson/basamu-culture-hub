@@ -12,7 +12,7 @@ const Footer = () => {
           <p className="text-sm text-muted-foreground">
             © {new Date().getFullYear()} BASAMU. All rights reserved.
           </p>
-         
+        </div>
       </div>
     </footer>
   );
