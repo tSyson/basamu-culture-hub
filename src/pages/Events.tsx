@@ -40,17 +40,17 @@ const Events = () => {
     <div className="min-h-screen bg-gradient-earth">
       <Navbar />
       
-      <section className="container mx-auto px-4 py-20">
-        <div className="text-center mb-12 animate-fade-in">
-          <h1 className="text-5xl font-bold mb-4">Our Events</h1>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+      <section className="container mx-auto px-4 md:px-6 lg:px-8 py-12 md:py-16 lg:py-20">
+        <div className="text-center mb-8 md:mb-12 animate-fade-in">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-3 md:mb-4">Our Events</h1>
+          <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto px-4">
             Celebrating our culture through memorable gatherings, functions, and cultural celebrations
           </p>
         </div>
 
         {/* Events Grid */}
         {events.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 max-w-6xl mx-auto">
             {events.map((event) => (
               <Card key={event.id} className="overflow-hidden animate-scale-in hover:shadow-lg transition-shadow">
                 {event.image_url && (
@@ -70,25 +70,25 @@ const Events = () => {
                     )}
                   </div>
                 )}
-                <CardHeader className="bg-gradient-sunset text-primary-foreground">
-                  <CardTitle className="text-2xl">{event.title}</CardTitle>
+                <CardHeader className="bg-gradient-sunset text-primary-foreground p-4 md:p-6">
+                  <CardTitle className="text-xl md:text-2xl">{event.title}</CardTitle>
                   {event.event_date && (
                     <div className="flex items-center gap-2 text-primary-foreground/90">
                       <Calendar size={16} />
-                      <span className="text-sm">
+                      <span className="text-xs md:text-sm">
                         {format(new Date(event.event_date), "MMMM d, yyyy")}
                       </span>
                     </div>
                   )}
                 </CardHeader>
-                <CardContent className="p-6 space-y-4">
-                  <p className="text-muted-foreground leading-relaxed">{event.description}</p>
+                <CardContent className="p-4 md:p-6 space-y-3 md:space-y-4">
+                  <p className="text-sm md:text-base text-muted-foreground leading-relaxed">{event.description}</p>
                   {event.media_link && (
                     <a 
                       href={event.media_link} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="text-primary hover:underline break-all"
+                      className="text-primary hover:underline break-all text-xs md:text-sm inline-block"
                     >
                       {event.media_link}
                     </a>

@@ -81,18 +81,18 @@ const Home = () => {
       <Navbar />
       
       {/* Hero Section */}
-      <section className="relative h-[600px] overflow-hidden">
+      <section className="relative h-[400px] md:h-[500px] lg:h-[600px] overflow-hidden">
         <img 
           src={homeContent.hero_image_url || heroImage} 
           alt="Western Uganda cultural heritage" 
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent flex items-end">
-          <div className="container mx-auto px-4 pb-20">
-            <h1 className="text-5xl md:text-7xl font-bold text-foreground mb-4 animate-fade-in">
+          <div className="container mx-auto px-4 md:px-6 lg:px-8 pb-8 md:pb-16 lg:pb-20">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-foreground mb-2 md:mb-4 animate-fade-in">
               {homeContent.hero_title}
             </h1>
-            <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl animate-fade-in">
+            <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-muted-foreground max-w-2xl animate-fade-in">
               {homeContent.hero_subtitle}
             </p>
           </div>
@@ -100,25 +100,25 @@ const Home = () => {
       </section>
 
       {/* Mission Section */}
-      <section className="container mx-auto px-4 py-20">
-        <div className="max-w-4xl mx-auto text-center space-y-6 animate-scale-in">
-          <h2 className="text-4xl font-bold">Our Mission</h2>
-          <p className="text-lg text-muted-foreground leading-relaxed">
+      <section className="container mx-auto px-4 md:px-6 lg:px-8 py-12 md:py-16 lg:py-20">
+        <div className="max-w-4xl mx-auto text-center space-y-4 md:space-y-6 animate-scale-in">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold">Our Mission</h2>
+          <p className="text-sm sm:text-base md:text-lg text-muted-foreground leading-relaxed px-4">
             {homeContent.mission_text}
           </p>
-          <h3 className="text-4xl font-bold">Our Vision</h3>
-          <p className="text-lg text-muted-foreground leading-relaxed">
+          <h3 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold pt-4 md:pt-6">Our Vision</h3>
+          <p className="text-sm sm:text-base md:text-lg text-muted-foreground leading-relaxed px-4">
             {homeContent.vision_text}
           </p>
-          <h4 className="text-4xl font-bold">Slogan</h4>
-          <p className="text-lg text-muted-foreground leading-relaxed">"{homeContent.slogan}"</p>
+          <h4 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold pt-4 md:pt-6">Slogan</h4>
+          <p className="text-sm sm:text-base md:text-lg text-muted-foreground leading-relaxed px-4">"{homeContent.slogan}"</p>
         </div>
       </section>
 
       {/* Cultural Gallery */}
-      <section className="container mx-auto px-4 py-20">
-        <h2 className="text-4xl font-bold text-center mb-12">Cultural Gallery</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <section className="container mx-auto px-4 md:px-6 lg:px-8 py-12 md:py-16 lg:py-20">
+        <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-center mb-8 md:mb-12">Cultural Gallery</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
           {culturalImages.length > 0 ? (
             culturalImages.map((item) => (
               <div 
