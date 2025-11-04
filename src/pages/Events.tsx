@@ -50,7 +50,7 @@ const Events = () => {
 
         {/* Events Grid */}
         {events.length > 0 ? (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 max-w-7xl mx-auto">
             {events.map((event) => (
               <Card key={event.id} className="overflow-hidden animate-scale-in hover:shadow-lg transition-shadow">
                 {event.image_url && (

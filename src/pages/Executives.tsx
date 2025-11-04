@@ -75,7 +75,7 @@ const Executives = () => {
 
         {/* Executives Grid */}
         {filteredExecutives.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
             {filteredExecutives.map((exec) => (
               <Card key={exec.id} className="overflow-hidden animate-scale-in hover:shadow-lg transition-shadow">
                 <CardContent className="p-4 md:p-6">
