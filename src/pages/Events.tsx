@@ -88,6 +88,10 @@ const Events = () => {
                       href={event.media_link} 
                       target="_blank" 
                       rel="noopener noreferrer"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        window.open(event.media_link!, '_blank', 'noopener,noreferrer');
+                      }}
                       className="text-primary hover:underline break-all text-xs md:text-sm inline-block"
                     >
                       {event.media_link}
