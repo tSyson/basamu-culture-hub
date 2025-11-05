@@ -476,9 +476,11 @@ const Admin = () => {
       <section className="container mx-auto px-4 py-20">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-4xl font-bold">Admin Dashboard</h1>
-          <Button onClick={handleLogout} variant="outline">
-            Logout
-          </Button>
+          <div className="flex gap-2">
+            <Button onClick={handleLogout} variant="outline">
+              Logout
+            </Button>
+          </div>
         </div>
 
         <Tabs defaultValue="executives" className="space-y-6">

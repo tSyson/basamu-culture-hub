@@ -82,19 +82,21 @@ const Home = () => {
       
       {/* Hero Section */}
       <section className="relative h-[400px] md:h-[500px] lg:h-[600px] overflow-hidden">
-        <img 
-          src={homeContent.hero_image_url || heroImage} 
-          alt="Western Uganda cultural heritage" 
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent flex items-end">
-          <div className="container mx-auto px-4 md:px-6 lg:px-8 pb-8 md:pb-16 lg:pb-20">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-foreground mb-2 md:mb-4 animate-fade-in">
-              {homeContent.hero_title}
-            </h1>
-            <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-muted-foreground max-w-2xl animate-fade-in">
-              {homeContent.hero_subtitle}
-            </p>
+        <div className="relative w-full h-full">
+          <img 
+            src={homeContent.hero_image_url || heroImage} 
+            alt="Western Uganda cultural heritage" 
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+            <div className="container mx-auto px-4 md:px-6 lg:px-8 text-center">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white mb-2 md:mb-4 animate-fade-in drop-shadow-lg">
+                {homeContent.hero_title}
+              </h1>
+              <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-white/90 max-w-2xl mx-auto animate-fade-in drop-shadow-md">
+                {homeContent.hero_subtitle}
+              </p>
+            </div>
           </div>
         </div>
       </section>
