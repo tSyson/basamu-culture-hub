@@ -84,22 +84,23 @@ const Events = () => {
                 <CardContent className="p-4 md:p-6 space-y-3 md:space-y-4">
                   <p className="text-sm md:text-base text-muted-foreground leading-relaxed">{event.description}</p>
                   {event.media_link && (
-                    <Button
-                      onClick={() => {
-                        const link = document.createElement('a');
-                        link.href = event.media_link!;
-                        link.target = '_blank';
-                        link.rel = 'noopener noreferrer';
-                        document.body.appendChild(link);
-                        link.click();
-                        document.body.removeChild(link);
-                      }}
-                      variant="outline"
-                      className="w-full gap-2"
+                    <a
+                      href={event.media_link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full"
                     >
-                      <ExternalLink size={16} />
-                      View Photos
-                    </Button>
+                      <Button
+                        variant="outline"
+                        className="w-full gap-2"
+                        asChild
+                      >
+                        <span>
+                          <ExternalLink size={16} />
+                          View Photos
+                        </span>
+                      </Button>
+                    </a>
                   )}
                 </CardContent>
               </Card>
