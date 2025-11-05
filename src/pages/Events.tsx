@@ -85,7 +85,15 @@ const Events = () => {
                   <p className="text-sm md:text-base text-muted-foreground leading-relaxed">{event.description}</p>
                   {event.media_link && (
                     <Button
-                      onClick={() => window.open(event.media_link!, '_blank', 'noopener,noreferrer')}
+                      onClick={() => {
+                        const link = document.createElement('a');
+                        link.href = event.media_link!;
+                        link.target = '_blank';
+                        link.rel = 'noopener noreferrer';
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                      }}
                       variant="outline"
                       className="w-full gap-2"
                     >
