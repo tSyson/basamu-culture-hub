@@ -477,6 +477,12 @@ const Admin = () => {
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-4xl font-bold">Admin Dashboard</h1>
           <div className="flex gap-2">
+            <Button 
+              onClick={() => toast.info("Access the database via the Cloud tool in the top navigation bar")}
+              variant="default"
+            >
+              View Database
+            </Button>
             <Button onClick={handleLogout} variant="outline">
               Logout
             </Button>
