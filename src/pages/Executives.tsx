@@ -5,6 +5,12 @@ import Footer from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Upload, Pencil } from "lucide-react";
+import { toast } from "sonner";
 
 interface Executive {
   id: string;
@@ -19,10 +25,33 @@ const Executives = () => {
   const [executives, setExecutives] = useState<Executive[]>([]);
   const [selectedYear, setSelectedYear] = useState<string>("all");
   const [years, setYears] = useState<number[]>([]);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [editingExecId, setEditingExecId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchExecutives();
+    checkAdminStatus();
   }, []);
+
+  const checkAdminStatus = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      setIsAdmin(false);
+      return;
+    }
+
+    const { data, error } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", user.id)
+      .eq("role", "admin")
+      .maybeSingle();
+
+    if (!error && data) {
+      setIsAdmin(true);
+    }
+  };
 
   const fetchExecutives = async () => {
     const { data, error } = await supabase
@@ -37,6 +66,52 @@ const Executives = () => {
       setExecutives(data || []);
       const uniqueYears = Array.from(new Set(data?.map(e => e.year) || []));
       setYears(uniqueYears.sort((a, b) => b - a));
+    }
+  };
+
+  const handlePhotoUpload = async (execId: string, file: File) => {
+    if (!file.type.startsWith('image/')) {
+      toast.error("Please upload an image file");
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image size should be less than 5MB");
+      return;
+    }
+
+    setUploading(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+      const filePath = fileName;
+
+      const { error: uploadError } = await supabase.storage
+        .from('executive-photos')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('executive-photos')
+        .getPublicUrl(filePath);
+
+      // Update executive record with new photo
+      const { error: updateError } = await supabase
+        .from("executives")
+        .update({ photo_url: publicUrl })
+        .eq("id", execId);
+
+      if (updateError) throw updateError;
+
+      toast.success("Photo updated successfully");
+      fetchExecutives();
+      setEditingExecId(null);
+    } catch (error) {
+      console.error('Error uploading photo:', error);
+      toast.error("Failed to upload photo");
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -80,12 +155,56 @@ const Executives = () => {
               <Card key={exec.id} className="overflow-hidden animate-scale-in hover:shadow-lg transition-shadow">
                 <CardContent className="p-4 md:p-6">
                   <div className="flex flex-col items-center text-center space-y-3 md:space-y-4">
-                    <Avatar className="w-20 h-20 md:w-24 md:h-24 border-4 border-primary">
-                      <AvatarImage src={exec.photo_url || undefined} alt={exec.name} className="object-cover" />
-                      <AvatarFallback className="bg-primary text-primary-foreground text-xl md:text-2xl">
-                        {exec.name.split(' ').map(n => n[0]).join('')}
-                      </AvatarFallback>
-                    </Avatar>
+                    <div className="relative">
+                      <Avatar className="w-20 h-20 md:w-24 md:h-24 border-4 border-primary">
+                        <AvatarImage src={exec.photo_url || undefined} alt={exec.name} className="object-cover" />
+                        <AvatarFallback className="bg-primary text-primary-foreground text-xl md:text-2xl">
+                          {exec.name.split(' ').map(n => n[0]).join('')}
+                        </AvatarFallback>
+                      </Avatar>
+                      {isAdmin && (
+                        <Dialog open={editingExecId === exec.id} onOpenChange={(open) => setEditingExecId(open ? exec.id : null)}>
+                          <DialogTrigger asChild>
+                            <Button 
+                              size="icon" 
+                              variant="secondary" 
+                              className="absolute -bottom-2 -right-2 h-8 w-8 rounded-full shadow-lg"
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle>Update Profile Picture</DialogTitle>
+                            </DialogHeader>
+                            <div className="space-y-4">
+                              <div>
+                                <Label htmlFor={`photo-${exec.id}`}>Upload New Photo</Label>
+                                <Input
+                                  id={`photo-${exec.id}`}
+                                  type="file"
+                                  accept="image/*"
+                                  onChange={(e) => {
+                                    const file = e.target.files?.[0];
+                                    if (file) {
+                                      handlePhotoUpload(exec.id, file);
+                                    }
+                                  }}
+                                  disabled={uploading}
+                                  className="mt-2"
+                                />
+                              </div>
+                              {uploading && (
+                                <p className="text-sm text-muted-foreground flex items-center gap-2">
+                                  <Upload className="h-4 w-4 animate-pulse" />
+                                  Uploading...
+                                </p>
+                              )}
+                            </div>
+                          </DialogContent>
+                        </Dialog>
+                      )}
+                    </div>
                     <div>
                       <h3 className="text-lg md:text-xl font-bold">{exec.name}</h3>
                       <p className="text-primary font-medium text-sm md:text-base">{exec.position}</p>
