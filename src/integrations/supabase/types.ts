@@ -100,6 +100,7 @@ export type Database = {
       }
       home_content: {
         Row: {
+          chairperson_email: string | null
           created_at: string | null
           hero_image_url: string | null
           hero_subtitle: string
@@ -111,6 +112,7 @@ export type Database = {
           vision_text: string
         }
         Insert: {
+          chairperson_email?: string | null
           created_at?: string | null
           hero_image_url?: string | null
           hero_subtitle?: string
@@ -122,6 +124,7 @@ export type Database = {
           vision_text?: string
         }
         Update: {
+          chairperson_email?: string | null
           created_at?: string | null
           hero_image_url?: string | null
           hero_subtitle?: string
