@@ -1,9 +1,16 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X } from "lucide-react";
+import { Menu, X, User as UserIcon, LogOut } from "lucide-react";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { User } from "@supabase/supabase-js";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { toast } from "sonner";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -20,6 +27,15 @@ const Navbar = () => {
 
     return () => subscription.unsubscribe();
   }, []);
+
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      toast.error("Error logging out");
+    } else {
+      toast.success("Logged out successfully");
+    }
+  };
 
   return (
     <nav className="bg-card border-b border-border sticky top-0 z-50 backdrop-blur-sm bg-card/90">
@@ -41,11 +57,19 @@ const Navbar = () => {
               Events
             </Link>
             {user ? (
-              <Link to="/admin">
-                <Button className="bg-primary hover:bg-primary/90">
-                  Admin
-                </Button>
-              </Link>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="icon">
+                    <UserIcon className="h-5 w-5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={handleLogout}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Logout
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             ) : (
               <Link to="/auth">
                 <Button className="bg-primary hover:bg-primary/90">
@@ -90,11 +114,16 @@ const Navbar = () => {
               Events
             </Link>
             {user ? (
-              <Link to="/admin" onClick={() => setIsOpen(false)}>
-                <Button className="w-full bg-primary hover:bg-primary/90">
-                  Admin
-                </Button>
-              </Link>
+              <Button 
+                className="w-full bg-destructive hover:bg-destructive/90" 
+                onClick={() => {
+                  handleLogout();
+                  setIsOpen(false);
+                }}
+              >
+                <LogOut className="mr-2 h-4 w-4" />
+                Logout
+              </Button>
             ) : (
               <Link to="/auth" onClick={() => setIsOpen(false)}>
                 <Button className="w-full bg-primary hover:bg-primary/90">
