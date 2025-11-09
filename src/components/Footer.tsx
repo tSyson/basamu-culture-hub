@@ -7,12 +7,15 @@ const Footer = () => {
   useEffect(() => {
     const fetchChairpersonEmail = async () => {
       const { data } = await supabase
-        .from("home_content")
-        .select("chairperson_email")
-        .single();
+        .from("executives")
+        .select("email, position")
+        .ilike("position", "%chairperson%")
+        .order("year", { ascending: false })
+        .limit(1)
+        .maybeSingle();
       
-      if (data?.chairperson_email) {
-        setChairpersonEmail(data.chairperson_email);
+      if (data?.email) {
+        setChairpersonEmail(data.email);
       }
     };
 

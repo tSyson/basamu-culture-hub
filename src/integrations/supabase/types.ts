@@ -68,6 +68,7 @@ export type Database = {
       executives: {
         Row: {
           created_at: string | null
+          email: string | null
           id: string
           name: string
           photo_url: string | null
@@ -78,6 +79,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
+          email?: string | null
           id?: string
           name: string
           photo_url?: string | null
@@ -88,6 +90,7 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
+          email?: string | null
           id?: string
           name?: string
           photo_url?: string | null
@@ -100,7 +103,6 @@ export type Database = {
       }
       home_content: {
         Row: {
-          chairperson_email: string | null
           created_at: string | null
           hero_image_url: string | null
           hero_subtitle: string
@@ -112,7 +114,6 @@ export type Database = {
           vision_text: string
         }
         Insert: {
-          chairperson_email?: string | null
           created_at?: string | null
           hero_image_url?: string | null
           hero_subtitle?: string
@@ -124,7 +125,6 @@ export type Database = {
           vision_text?: string
         }
         Update: {
-          chairperson_email?: string | null
           created_at?: string | null
           hero_image_url?: string | null
           hero_subtitle?: string

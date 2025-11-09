@@ -48,7 +48,6 @@ const Admin = () => {
   const [visionText, setVisionText] = useState("");
   const [slogan, setSlogan] = useState("");
   const [heroImageUrl, setHeroImageUrl] = useState("");
-  const [chairpersonEmail, setChairpersonEmail] = useState("");
   const [uploadingHeroImage, setUploadingHeroImage] = useState(false);
   const [homeContentId, setHomeContentId] = useState<string | null>(null);
 
@@ -78,7 +77,6 @@ const Admin = () => {
       setVisionText(data.vision_text);
       setSlogan(data.slogan);
       setHeroImageUrl(data.hero_image_url || "");
-      setChairpersonEmail(data.chairperson_email || "");
       setHomeContentId(data.id);
     }
   };
@@ -447,7 +445,6 @@ const Admin = () => {
         vision_text: visionText,
         slogan: slogan,
         hero_image_url: heroImageUrl || null,
-        chairperson_email: chairpersonEmail || null,
         updated_at: new Date().toISOString(),
       })
       .eq("id", homeContentId);
@@ -906,16 +903,6 @@ const Admin = () => {
                       value={slogan}
                       onChange={(e) => setSlogan(e.target.value)}
                       required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="chairperson-email">Chairperson Email</Label>
-                    <Input
-                      id="chairperson-email"
-                      type="email"
-                      value={chairpersonEmail}
-                      onChange={(e) => setChairpersonEmail(e.target.value)}
-                      placeholder="chairperson@example.com"
                     />
                   </div>
                   <Button type="submit" className="w-full">
