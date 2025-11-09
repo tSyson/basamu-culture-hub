@@ -12,6 +12,7 @@ const Auth = () => {
   const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(true);
   const [isForgotPassword, setIsForgotPassword] = useState(false);
+  const [isResettingPassword, setIsResettingPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -34,7 +35,11 @@ const Auth = () => {
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session?.user) {
+      if (event === 'PASSWORD_RECOVERY') {
+        setIsResettingPassword(true);
+        setIsForgotPassword(false);
+        setIsLogin(false);
+      } else if (session?.user) {
         setUser(session.user);
         navigate("/admin");
       } else {
@@ -50,7 +55,31 @@ const Auth = () => {
     setLoading(true);
 
     try {
-      if (isForgotPassword) {
+      if (isResettingPassword) {
+        // Handle password reset after clicking email link
+        if (password !== confirmPassword) {
+          toast.error("Passwords do not match!");
+          setLoading(false);
+          return;
+        }
+        
+        if (password.length < 6) {
+          toast.error("Password must be at least 6 characters long!");
+          setLoading(false);
+          return;
+        }
+
+        const { error } = await supabase.auth.updateUser({
+          password: password
+        });
+        
+        if (error) throw error;
+        toast.success("Password updated successfully! You can now log in.");
+        setIsResettingPassword(false);
+        setIsLogin(true);
+        setPassword("");
+        setConfirmPassword("");
+      } else if (isForgotPassword) {
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
           redirectTo: `${window.location.origin}/auth`,
         });
@@ -112,7 +141,9 @@ const Auth = () => {
             BASAMU
           </CardTitle>
           <CardDescription className="text-center">
-            {isForgotPassword 
+            {isResettingPassword 
+              ? "Enter your new password"
+              : isForgotPassword 
               ? "Reset your password" 
               : isLogin 
               ? "Sign in to your account" 
@@ -121,7 +152,7 @@ const Auth = () => {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleAuth} className="space-y-4">
-            {!isLogin && !isForgotPassword && (
+            {!isLogin && !isForgotPassword && !isResettingPassword && (
               <>
                 <div className="space-y-2">
                   <Label htmlFor="firstName">First Name</Label>
@@ -148,22 +179,24 @@ const Auth = () => {
               </>
             )}
             
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="your.email@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
+            {!isResettingPassword && (
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="your.email@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
+            )}
             
             {!isForgotPassword && (
               <>
                 <div className="space-y-2">
-                  <Label htmlFor="password">Password</Label>
+                  <Label htmlFor="password">{isResettingPassword ? "New Password" : "Password"}</Label>
                   <Input
                     id="password"
                     type="password"
@@ -174,7 +207,7 @@ const Auth = () => {
                   />
                 </div>
                 
-                {!isLogin && (
+                {(!isLogin || isResettingPassword) && (
                   <div className="space-y-2">
                     <Label htmlFor="confirmPassword">Confirm Password</Label>
                     <Input
@@ -197,6 +230,8 @@ const Auth = () => {
             >
               {loading 
                 ? "Loading..." 
+                : isResettingPassword
+                ? "Update Password"
                 : isForgotPassword 
                 ? "Send Reset Link" 
                 : isLogin 
@@ -206,7 +241,7 @@ const Auth = () => {
           </form>
           
           <div className="mt-4 text-center space-y-2">
-            {isLogin && !isForgotPassword && (
+            {isLogin && !isForgotPassword && !isResettingPassword && (
               <button
                 type="button"
                 onClick={() => setIsForgotPassword(true)}
@@ -216,7 +251,7 @@ const Auth = () => {
               </button>
             )}
             
-            {!isForgotPassword && (
+            {!isForgotPassword && !isResettingPassword && (
               <button
                 type="button"
                 onClick={() => setIsLogin(!isLogin)}
