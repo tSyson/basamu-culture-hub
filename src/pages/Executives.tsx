@@ -9,7 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Upload, Pencil } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { Upload, Pencil, Edit } from "lucide-react";
 import { toast } from "sonner";
 
 interface Executive {
@@ -17,7 +18,7 @@ interface Executive {
   name: string;
   position: string;
   role: string;
-  year: number;
+  year: string;
   photo_url: string | null;
   email: string | null;
 }
@@ -25,12 +26,19 @@ interface Executive {
 const Executives = () => {
   const [executives, setExecutives] = useState<Executive[]>([]);
   const [selectedYear, setSelectedYear] = useState<string>("all");
-  const [years, setYears] = useState<number[]>([]);
+  const [years, setYears] = useState<string[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [editingExecId, setEditingExecId] = useState<string | null>(null);
   const [editingEmail, setEditingEmail] = useState<string>("");
   const [editingEmailId, setEditingEmailId] = useState<string | null>(null);
+  const [editingDetailsId, setEditingDetailsId] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState({
+    name: "",
+    position: "",
+    role: "",
+    year: ""
+  });
 
   useEffect(() => {
     fetchExecutives();
@@ -68,7 +76,7 @@ const Executives = () => {
     } else {
       setExecutives(data || []);
       const uniqueYears = Array.from(new Set(data?.map(e => e.year) || []));
-      setYears(uniqueYears.sort((a, b) => b - a));
+      setYears(uniqueYears.sort((a, b) => b.localeCompare(a)));
     }
   };
 
@@ -141,6 +149,40 @@ const Executives = () => {
     toast.success("Email updated successfully!");
   };
 
+  const handleDetailsUpdate = async () => {
+    if (!editingDetailsId) return;
+
+    const { error } = await supabase
+      .from("executives")
+      .update({
+        name: editForm.name,
+        position: editForm.position,
+        role: editForm.role,
+        year: editForm.year
+      })
+      .eq("id", editingDetailsId);
+
+    if (error) {
+      toast.error("Failed to update details");
+      console.error(error);
+      return;
+    }
+
+    setEditingDetailsId(null);
+    fetchExecutives();
+    toast.success("Details updated successfully!");
+  };
+
+  const openEditDialog = (exec: Executive) => {
+    setEditingDetailsId(exec.id);
+    setEditForm({
+      name: exec.name,
+      position: exec.position,
+      role: exec.role,
+      year: exec.year
+    });
+  };
+
   const filteredExecutives = selectedYear === "all"
     ? executives 
     : executives.filter(exec => exec.year.toString() === selectedYear);
@@ -178,7 +220,74 @@ const Executives = () => {
         {filteredExecutives.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
             {filteredExecutives.map((exec) => (
-              <Card key={exec.id} className="overflow-hidden animate-scale-in hover:shadow-lg transition-shadow">
+              <Card key={exec.id} className="overflow-hidden animate-scale-in hover:shadow-lg transition-shadow relative">
+                {isAdmin && (
+                  <Dialog open={editingDetailsId === exec.id} onOpenChange={(open) => !open && setEditingDetailsId(null)}>
+                    <DialogTrigger asChild>
+                      <Button 
+                        size="icon" 
+                        variant="secondary" 
+                        className="absolute top-2 right-2 h-8 w-8 rounded-full shadow-lg z-10"
+                        onClick={() => openEditDialog(exec)}
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+                      <DialogHeader>
+                        <DialogTitle>Edit Executive Details</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4">
+                        <div>
+                          <Label htmlFor="name">Name</Label>
+                          <Input
+                            id="name"
+                            value={editForm.name}
+                            onChange={(e) => setEditForm({...editForm, name: e.target.value})}
+                            className="mt-2"
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="position">Position</Label>
+                          <Input
+                            id="position"
+                            value={editForm.position}
+                            onChange={(e) => setEditForm({...editForm, position: e.target.value})}
+                            className="mt-2"
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="role">Role</Label>
+                          <Textarea
+                            id="role"
+                            value={editForm.role}
+                            onChange={(e) => setEditForm({...editForm, role: e.target.value})}
+                            className="mt-2"
+                            rows={3}
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="year">Year (e.g., 2025/2026)</Label>
+                          <Input
+                            id="year"
+                            value={editForm.year}
+                            onChange={(e) => setEditForm({...editForm, year: e.target.value})}
+                            className="mt-2"
+                            placeholder="2025/2026"
+                          />
+                        </div>
+                        <div className="flex gap-2 justify-end">
+                          <Button variant="outline" onClick={() => setEditingDetailsId(null)}>
+                            Cancel
+                          </Button>
+                          <Button onClick={handleDetailsUpdate}>
+                            Save Changes
+                          </Button>
+                        </div>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                )}
                 <CardContent className="p-4 md:p-6">
                   <div className="flex flex-col items-center text-center space-y-3 md:space-y-4">
                     <div className="relative">
