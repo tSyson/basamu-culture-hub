@@ -22,7 +22,7 @@ const Admin = () => {
   const [execName, setExecName] = useState("");
   const [execPosition, setExecPosition] = useState("");
   const [execRole, setExecRole] = useState("");
-  const [execYear, setExecYear] = useState(new Date().getFullYear());
+  const [execYear, setExecYear] = useState(`${new Date().getFullYear()}/${new Date().getFullYear() + 1}`);
   const [execRank, setExecRank] = useState(0);
   const [execPhoto, setExecPhoto] = useState("");
   const [uploading, setUploading] = useState(false);
@@ -528,12 +528,13 @@ const Admin = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="exec-year">Year</Label>
+                    <Label htmlFor="exec-year">Year (e.g., 2025/2026)</Label>
                     <Input
                       id="exec-year"
-                      type="number"
+                      type="text"
+                      placeholder="2025/2026"
                       value={execYear}
-                      onChange={(e) => setExecYear(parseInt(e.target.value))}
+                      onChange={(e) => setExecYear(e.target.value)}
                       required
                     />
                   </div>

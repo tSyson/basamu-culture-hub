@@ -75,7 +75,7 @@ export type Database = {
           position: string
           rank: number | null
           role: string
-          year: number
+          year: string
         }
         Insert: {
           created_at?: string | null
@@ -86,7 +86,7 @@ export type Database = {
           position: string
           rank?: number | null
           role: string
-          year: number
+          year: string
         }
         Update: {
           created_at?: string | null
@@ -97,7 +97,7 @@ export type Database = {
           position?: string
           rank?: number | null
           role?: string
-          year?: number
+          year?: string
         }
         Relationships: []
       }
