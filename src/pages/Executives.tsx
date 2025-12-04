@@ -20,7 +20,6 @@ interface Executive {
   role: string;
   year: string;
   photo_url: string | null;
-  email: string | null;
 }
 
 const Executives = () => {
@@ -30,8 +29,6 @@ const Executives = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [editingExecId, setEditingExecId] = useState<string | null>(null);
-  const [editingEmail, setEditingEmail] = useState<string>("");
-  const [editingEmailId, setEditingEmailId] = useState<string | null>(null);
   const [editingDetailsId, setEditingDetailsId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState({
     name: "",
@@ -124,29 +121,6 @@ const Executives = () => {
     } finally {
       setUploading(false);
     }
-  };
-
-  const handleEmailUpdate = async (executiveId: string) => {
-    if (!editingEmail) {
-      toast.error("Please enter an email address");
-      return;
-    }
-
-    const { error } = await supabase
-      .from("executives")
-      .update({ email: editingEmail })
-      .eq("id", executiveId);
-
-    if (error) {
-      toast.error("Failed to update email");
-      console.error(error);
-      return;
-    }
-
-    setEditingEmailId(null);
-    setEditingEmail("");
-    fetchExecutives();
-    toast.success("Email updated successfully!");
   };
 
   const handleDetailsUpdate = async () => {
@@ -346,60 +320,6 @@ const Executives = () => {
                       <p className="text-muted-foreground text-xs md:text-sm mt-1 md:mt-2">{exec.role}</p>
                       <p className="text-accent font-semibold text-xs md:text-sm mt-1 md:mt-2">{exec.year}</p>
                       
-                      {isAdmin ? (
-                        <div className="mt-3 space-y-2">
-                          {editingEmailId === exec.id ? (
-                            <div className="flex gap-2">
-                              <Input
-                                type="email"
-                                value={editingEmail}
-                                onChange={(e) => setEditingEmail(e.target.value)}
-                                placeholder="email@example.com"
-                                className="text-xs h-8"
-                              />
-                              <Button
-                                size="sm"
-                                onClick={() => handleEmailUpdate(exec.id)}
-                                className="text-xs h-8"
-                              >
-                                Save
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => {
-                                  setEditingEmailId(null);
-                                  setEditingEmail("");
-                                }}
-                                className="text-xs h-8"
-                              >
-                                Cancel
-                              </Button>
-                            </div>
-                          ) : (
-                            <div className="flex items-center justify-center gap-2">
-                              {exec.email ? (
-                                <p className="text-xs text-muted-foreground truncate">{exec.email}</p>
-                              ) : (
-                                <p className="text-xs text-muted-foreground italic">No email set</p>
-                              )}
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                onClick={() => {
-                                  setEditingEmailId(exec.id);
-                                  setEditingEmail(exec.email || "");
-                                }}
-                                className="h-6 px-2 text-xs"
-                              >
-                                <Pencil className="h-3 w-3" />
-                              </Button>
-                            </div>
-                          )}
-                        </div>
-                      ) : exec.email ? (
-                        <p className="text-xs text-muted-foreground mt-2">{exec.email}</p>
-                      ) : null}
                     </div>
                   </div>
                 </CardContent>
