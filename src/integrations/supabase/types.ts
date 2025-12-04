@@ -103,6 +103,7 @@ export type Database = {
       }
       home_content: {
         Row: {
+          badge_url: string | null
           created_at: string | null
           hero_image_url: string | null
           hero_subtitle: string
@@ -114,6 +115,7 @@ export type Database = {
           vision_text: string
         }
         Insert: {
+          badge_url?: string | null
           created_at?: string | null
           hero_image_url?: string | null
           hero_subtitle?: string
@@ -125,6 +127,7 @@ export type Database = {
           vision_text?: string
         }
         Update: {
+          badge_url?: string | null
           created_at?: string | null
           hero_image_url?: string | null
           hero_subtitle?: string

@@ -49,6 +49,8 @@ const Admin = () => {
   const [slogan, setSlogan] = useState("");
   const [heroImageUrl, setHeroImageUrl] = useState("");
   const [uploadingHeroImage, setUploadingHeroImage] = useState(false);
+  const [badgeUrl, setBadgeUrl] = useState("");
+  const [uploadingBadge, setUploadingBadge] = useState(false);
   const [homeContentId, setHomeContentId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -77,6 +79,7 @@ const Admin = () => {
       setVisionText(data.vision_text);
       setSlogan(data.slogan);
       setHeroImageUrl(data.hero_image_url || "");
+      setBadgeUrl(data.badge_url || "");
       setHomeContentId(data.id);
     }
   };
@@ -428,6 +431,46 @@ const Admin = () => {
     }
   };
 
+  const handleBadgeUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast.error("Please upload an image file");
+      return;
+    }
+
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error("Badge size should be less than 2MB");
+      return;
+    }
+
+    setUploadingBadge(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `badge-${Date.now()}.${fileExt}`;
+      const filePath = fileName;
+
+      const { error: uploadError } = await supabase.storage
+        .from('cultural-images')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('cultural-images')
+        .getPublicUrl(filePath);
+
+      setBadgeUrl(publicUrl);
+      toast.success("Badge uploaded successfully");
+    } catch (error) {
+      console.error('Error uploading badge:', error);
+      toast.error("Failed to upload badge");
+    } finally {
+      setUploadingBadge(false);
+    }
+  };
+
   const handleUpdateHomeContent = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -445,6 +488,7 @@ const Admin = () => {
         vision_text: visionText,
         slogan: slogan,
         hero_image_url: heroImageUrl || null,
+        badge_url: badgeUrl || null,
         updated_at: new Date().toISOString(),
       })
       .eq("id", homeContentId);
@@ -905,6 +949,50 @@ const Admin = () => {
                       onChange={(e) => setSlogan(e.target.value)}
                       required
                     />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Badge (Bottom Right Corner)</Label>
+                    <div className="flex flex-col gap-3">
+                      <div className="flex items-center gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => document.getElementById('badge-image')?.click()}
+                          disabled={uploadingBadge}
+                          className="w-full"
+                        >
+                          {uploadingBadge ? "Uploading..." : "Choose Badge Image from Device"}
+                        </Button>
+                      </div>
+                      <Input
+                        id="badge-image"
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp"
+                        onChange={handleBadgeUpload}
+                        disabled={uploadingBadge}
+                        className="hidden"
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        Recommended: Square image (200x200px) • Max size: 2MB
+                      </p>
+                      {badgeUrl && (
+                        <div className="flex items-center gap-3 p-3 border rounded-lg bg-muted/50">
+                          <img src={badgeUrl} alt="Badge preview" className="w-16 h-16 object-contain rounded-full border-2 border-primary" />
+                          <div className="flex-1">
+                            <p className="text-sm font-medium">Badge uploaded</p>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setBadgeUrl("")}
+                              className="h-auto p-0 text-xs text-destructive hover:text-destructive"
+                            >
+                              Remove
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
                   <Button type="submit" className="w-full">
                     Update Home Content
