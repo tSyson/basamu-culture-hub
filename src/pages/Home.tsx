@@ -93,6 +93,16 @@ const Home = () => {
           />
           <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
             <div className="container mx-auto px-4 md:px-6 lg:px-8 text-center">
+              {/* Badge on Hero */}
+              {homeContent.badge_url && (
+                <div className="mb-4 md:mb-6">
+                  <img 
+                    src={homeContent.badge_url} 
+                    alt="BASAMU Badge" 
+                    className="w-24 h-24 md:w-32 md:h-32 lg:w-40 lg:h-40 object-contain mx-auto rounded-full shadow-xl bg-background/20 p-2"
+                  />
+                </div>
+              )}
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white mb-2 md:mb-4 animate-fade-in drop-shadow-lg">
                 {homeContent.hero_title}
               </h1>
@@ -159,17 +169,6 @@ const Home = () => {
           )}
         </div>
       </section>
-
-      {/* Badge - Fixed Bottom Right */}
-      {homeContent.badge_url && (
-        <div className="fixed bottom-4 right-4 z-50">
-          <img 
-            src={homeContent.badge_url} 
-            alt="BASAMU Badge" 
-            className="w-16 h-16 md:w-20 md:h-20 object-contain rounded-full shadow-lg bg-background/80 p-1"
-          />
-        </div>
-      )}
 
       <Footer />
     </div>
