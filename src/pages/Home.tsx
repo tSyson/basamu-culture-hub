@@ -20,6 +20,7 @@ interface HomeContent {
   vision_text: string;
   slogan: string;
   hero_image_url?: string;
+  badge_url?: string;
 }
 
 const Home = () => {
@@ -29,7 +30,8 @@ const Home = () => {
     hero_subtitle: "Banyakitara Students Association at Muni University.",
     mission_text: "BASAMU is dedicated to promoting cultural and community awareness, social justice, equity, unity through positive attitude towards development of the community and the nation at large.",
     vision_text: "To be model students in all walks of life Within the university and the community and the Nation in Target.",
-    slogan: "Banyakitara tubebamwe"
+    slogan: "Banyakitara tubebamwe",
+    badge_url: undefined
   });
 
   useEffect(() => {
@@ -65,7 +67,8 @@ const Home = () => {
         mission_text: data.mission_text,
         vision_text: data.vision_text,
         slogan: data.slogan,
-        hero_image_url: data.hero_image_url
+        hero_image_url: data.hero_image_url,
+        badge_url: data.badge_url
       });
     }
   };
@@ -156,6 +159,17 @@ const Home = () => {
           )}
         </div>
       </section>
+
+      {/* Badge - Fixed Bottom Right */}
+      {homeContent.badge_url && (
+        <div className="fixed bottom-4 right-4 z-50">
+          <img 
+            src={homeContent.badge_url} 
+            alt="BASAMU Badge" 
+            className="w-16 h-16 md:w-20 md:h-20 object-contain rounded-full shadow-lg bg-background/80 p-1"
+          />
+        </div>
+      )}
 
       <Footer />
     </div>
