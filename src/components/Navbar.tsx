@@ -1,6 +1,6 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, User as UserIcon, LogOut, Sun, Moon } from "lucide-react";
+import { Menu, X, User as UserIcon, LogOut, Sun, Moon, Settings } from "lucide-react";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { User } from "@supabase/supabase-js";
@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import { useTheme } from "next-themes";
 
 const Navbar = () => {
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const { theme, setTheme } = useTheme();
@@ -79,6 +80,10 @@ const Navbar = () => {
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => navigate("/profile")}>
+                    <Settings className="mr-2 h-4 w-4" />
+                    Profile Settings
+                  </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
                     {theme === "dark" ? (
                       <Sun className="mr-2 h-4 w-4" />
@@ -145,6 +150,16 @@ const Navbar = () => {
                   </p>
                   <p className="text-xs text-muted-foreground">{user.email}</p>
                 </div>
+                <Link
+                  to="/profile"
+                  className="block"
+                  onClick={() => setIsOpen(false)}
+                >
+                  <Button variant="outline" className="w-full justify-start">
+                    <Settings className="mr-2 h-4 w-4" />
+                    Profile Settings
+                  </Button>
+                </Link>
                 <Button
                   variant="outline"
                   className="w-full justify-start"
