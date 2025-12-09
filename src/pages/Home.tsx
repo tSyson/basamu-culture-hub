@@ -114,19 +114,35 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Mission Section */}
+      {/* Mission, Vision & Slogan Section */}
       <section className="container mx-auto px-4 md:px-6 lg:px-8 py-12 md:py-16 lg:py-20">
-        <div className="max-w-4xl mx-auto text-center space-y-4 md:space-y-6 animate-scale-in">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold">Our Mission</h2>
-          <p className="text-sm sm:text-base md:text-lg text-muted-foreground leading-relaxed px-4">
-            {homeContent.mission_text}
-          </p>
-          <h3 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold pt-4 md:pt-6">Our Vision</h3>
-          <p className="text-sm sm:text-base md:text-lg text-muted-foreground leading-relaxed px-4">
-            {homeContent.vision_text}
-          </p>
-          <h4 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold pt-4 md:pt-6">Slogan</h4>
-          <p className="text-sm sm:text-base md:text-lg text-muted-foreground leading-relaxed px-4">"{homeContent.slogan}"</p>
+        <div className="max-w-4xl mx-auto animate-scale-in">
+          <div className="bg-card border border-border rounded-2xl shadow-lg p-6 md:p-10 lg:p-12 space-y-8 md:space-y-10">
+            <div className="text-center space-y-3">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary">Our Mission</h2>
+              <p className="text-sm sm:text-base md:text-lg text-muted-foreground leading-relaxed">
+                {homeContent.mission_text}
+              </p>
+            </div>
+            
+            <div className="border-t border-border"></div>
+            
+            <div className="text-center space-y-3">
+              <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary">Our Vision</h3>
+              <p className="text-sm sm:text-base md:text-lg text-muted-foreground leading-relaxed">
+                {homeContent.vision_text}
+              </p>
+            </div>
+            
+            <div className="border-t border-border"></div>
+            
+            <div className="text-center space-y-3">
+              <h4 className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary">Slogan</h4>
+              <p className="text-lg sm:text-xl md:text-2xl text-foreground font-medium italic">
+                "{homeContent.slogan}"
+              </p>
+            </div>
+          </div>
         </div>
       </section>
 
