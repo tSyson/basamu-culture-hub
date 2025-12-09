@@ -40,7 +40,7 @@ const Footer = () => {
               </p>
             )}
             <p>
-              Developer: SYSON TUGUME | <a href="mailto:tugumesyson@gmail.com" className="hover:text-primary transition-colors">tugumesyson@gmail.com</a>
+              Developer: SYSON TUGUME | <a href="mailto:tugumesyson76@gmail.com" className="hover:text-primary transition-colors">tugumesyson76@gmail.com</a>
             </p>
           </div>
 
