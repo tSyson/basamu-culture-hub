@@ -6,7 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import Executives from "./pages/Executives";
 import Events from "./pages/Events";
-import Auth from "./pages/Auth";
+
 import Admin from "./pages/Admin";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
@@ -23,7 +23,7 @@ const App = () => (
           <Route path="/" element={<Home />} />
           <Route path="/executives" element={<Executives />} />
           <Route path="/events" element={<Events />} />
-          <Route path="/auth" element={<Auth />} />
+          
           <Route path="/admin" element={<Admin />} />
           <Route path="/profile" element={<Profile />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
