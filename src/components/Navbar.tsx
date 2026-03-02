@@ -133,13 +133,7 @@ const Navbar = () => {
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-            ) : (
-              <Link to="/auth">
-                <Button className="bg-primary hover:bg-primary/90">
-                  Login / Register
-                </Button>
-              </Link>
-            )}
+            ) : null}
           </div>
 
           {/* Mobile Menu Button */}
