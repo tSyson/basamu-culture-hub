@@ -99,7 +99,6 @@ const Admin = () => {
         }, 0);
       } else {
         setLoading(false);
-        navigate("/auth");
       }
     });
 
@@ -112,7 +111,6 @@ const Admin = () => {
       await checkAdminStatus(currentSession.user.id);
     } else {
       setLoading(false);
-      navigate("/auth");
     }
 
     return () => subscription.unsubscribe();
