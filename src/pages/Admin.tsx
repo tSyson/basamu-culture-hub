@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import Navbar from "@/components/Navbar";
@@ -17,6 +17,9 @@ const Admin = () => {
   const [session, setSession] = useState<Session | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
+  const [loginLoading, setLoginLoading] = useState(false);
 
   // Executive form state
   const [execName, setExecName] = useState("");
@@ -96,7 +99,6 @@ const Admin = () => {
         }, 0);
       } else {
         setLoading(false);
-        navigate("/auth");
       }
     });
 
@@ -109,7 +111,6 @@ const Admin = () => {
       await checkAdminStatus(currentSession.user.id);
     } else {
       setLoading(false);
-      navigate("/auth");
     }
 
     return () => subscription.unsubscribe();
@@ -141,8 +142,26 @@ const Admin = () => {
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
+    setIsAdmin(false);
+    setUser(null);
+    setSession(null);
     toast.success("Logged out successfully");
-    navigate("/");
+  };
+
+  const handleAdminLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoginLoading(true);
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email: loginEmail,
+        password: loginPassword,
+      });
+      if (error) throw error;
+    } catch (error: any) {
+      toast.error(error.message || "Login failed");
+    } finally {
+      setLoginLoading(false);
+    }
   };
 
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -510,7 +529,49 @@ const Admin = () => {
   }
 
   if (!isAdmin) {
-    return null;
+    return (
+      <div className="min-h-screen bg-gradient-earth flex items-center justify-center p-4">
+        <Card className="w-full max-w-md">
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-3xl font-bold text-center bg-gradient-sunset bg-clip-text text-transparent">
+              Admin Login
+            </CardTitle>
+            <CardDescription className="text-center">
+              Sign in to access the admin dashboard
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleAdminLogin} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="admin-email">Email</Label>
+                <Input
+                  id="admin-email"
+                  type="email"
+                  placeholder="admin@example.com"
+                  value={loginEmail}
+                  onChange={(e) => setLoginEmail(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="admin-password">Password</Label>
+                <Input
+                  id="admin-password"
+                  type="password"
+                  placeholder="••••••••"
+                  value={loginPassword}
+                  onChange={(e) => setLoginPassword(e.target.value)}
+                  required
+                />
+              </div>
+              <Button type="submit" className="w-full bg-primary hover:bg-primary/90" disabled={loginLoading}>
+                {loginLoading ? "Signing in..." : "Sign In"}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
 
   return (
