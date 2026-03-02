@@ -211,13 +211,7 @@ const Navbar = () => {
                   Logout
                 </Button>
               </div>
-            ) : (
-              <Link to="/auth" onClick={() => setIsOpen(false)}>
-                <Button className="w-full bg-primary hover:bg-primary/90">
-                  Login / Register
-                </Button>
-              </Link>
-            )}
+            ) : null}
           </div>
         )}
       </div>
