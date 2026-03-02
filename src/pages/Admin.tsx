@@ -142,8 +142,26 @@ const Admin = () => {
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
+    setIsAdmin(false);
+    setUser(null);
+    setSession(null);
     toast.success("Logged out successfully");
-    navigate("/");
+  };
+
+  const handleAdminLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoginLoading(true);
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email: loginEmail,
+        password: loginPassword,
+      });
+      if (error) throw error;
+    } catch (error: any) {
+      toast.error(error.message || "Login failed");
+    } finally {
+      setLoginLoading(false);
+    }
   };
 
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
