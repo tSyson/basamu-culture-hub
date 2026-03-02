@@ -188,6 +188,7 @@ const Home = () => {
       </section>
 
       <Footer />
+      <DonationButton />
     </div>
   );
 };
