@@ -91,6 +91,7 @@ const Home = () => {
             src={homeContent.hero_image_url || heroImage} 
             alt="Western Uganda cultural heritage" 
             className="w-full h-full object-cover"
+            fetchPriority="high"
           />
           <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
             <div className="container mx-auto px-4 md:px-6 lg:px-8 text-center">
@@ -109,6 +110,7 @@ const Home = () => {
                 src={homeContent.badge_url} 
                 alt="BASAMU Badge" 
                 className="w-28 h-28 md:w-36 md:h-36 lg:w-44 lg:h-44 object-contain rounded-full shadow-xl bg-background/20 p-2"
+                loading="lazy"
               />
             </div>
           )}
