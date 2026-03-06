@@ -173,6 +173,13 @@ const Navbar = () => {
             >
               Events
             </Link>
+            <Link
+              to="/admin"
+              className="block text-foreground hover:text-primary transition-colors"
+              onClick={() => setIsOpen(false)}
+            >
+              Admin
+            </Link>
             {user ? (
               <div className="space-y-3 pt-2 border-t border-border">
                 <div className="px-1">
