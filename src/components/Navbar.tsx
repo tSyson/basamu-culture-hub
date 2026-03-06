@@ -88,6 +88,9 @@ const Navbar = () => {
             <Link to="/events" className="text-foreground hover:text-primary transition-colors">
               Events
             </Link>
+            <Link to="/admin" className="text-foreground hover:text-primary transition-colors">
+              Admin
+            </Link>
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
