@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Heart, Phone, X } from "lucide-react";
+import { Heart, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -14,50 +14,47 @@ const DonationButton = () => {
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<"mtn" | "airtel" | null>(null);
   const [amount, setAmount] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
 
   const providers = {
     mtn: {
       name: "MTN Mobile Money",
-      number: "0785393756",
+      recipientNumber: "0785393756",
       color: "from-yellow-400 to-yellow-500",
-      textColor: "text-yellow-900",
       bgHover: "hover:bg-yellow-50 dark:hover:bg-yellow-950/30",
-      border: "border-yellow-400",
-      ussd: (amt: string) => `*165*1*0785393756*${amt}#`,
+      ussd: (amt: string, sender: string) => `*165*1*0785393756*${amt}#`,
     },
     airtel: {
       name: "Airtel Money",
-      number: "0755692470",
+      recipientNumber: "0755692470",
       color: "from-red-500 to-red-600",
-      textColor: "text-red-900 dark:text-red-100",
       bgHover: "hover:bg-red-50 dark:hover:bg-red-950/30",
-      border: "border-red-500",
-      ussd: (amt: string) => `*185*9*0755692470*${amt}#`,
+      ussd: (amt: string, sender: string) => `*185*9*0755692470*${amt}#`,
     },
   };
 
   const handleDonate = () => {
-    if (!selected || !amount) return;
+    if (!selected || !amount || !phoneNumber) return;
     const provider = providers[selected];
-    const ussd = provider.ussd(amount);
-    // Try to open the dialer with the USSD code
+    const ussd = provider.ussd(amount, phoneNumber);
     window.location.href = `tel:${encodeURIComponent(ussd)}`;
   };
 
   const handleBack = () => {
     setSelected(null);
     setAmount("");
+    setPhoneNumber("");
   };
 
   const handleClose = () => {
     setOpen(false);
     setSelected(null);
     setAmount("");
+    setPhoneNumber("");
   };
 
   return (
     <>
-      {/* Floating Button */}
       <button
         onClick={() => setOpen(true)}
         className="fixed bottom-6 right-6 z-50 flex items-center gap-2 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground px-5 py-3 rounded-full shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 animate-fade-in"
@@ -75,14 +72,13 @@ const DonationButton = () => {
             </DialogTitle>
             <DialogDescription className="text-center">
               {selected
-                ? `Enter the amount to donate to ${providers[selected].number}`
+                ? `Sending to ${providers[selected].recipientNumber}`
                 : "Choose your mobile money provider"}
             </DialogDescription>
           </DialogHeader>
 
           {!selected ? (
             <div className="grid grid-cols-2 gap-4 py-4">
-              {/* MTN */}
               <button
                 onClick={() => setSelected("mtn")}
                 className={`flex flex-col items-center gap-3 p-6 rounded-xl border-2 border-border ${providers.mtn.bgHover} transition-all duration-200 hover:scale-105 hover:border-yellow-400`}
@@ -94,7 +90,6 @@ const DonationButton = () => {
                 <span className="text-xs text-muted-foreground">0785393756</span>
               </button>
 
-              {/* Airtel */}
               <button
                 onClick={() => setSelected("airtel")}
                 className={`flex flex-col items-center gap-3 p-6 rounded-xl border-2 border-border ${providers.airtel.bgHover} transition-all duration-200 hover:scale-105 hover:border-red-500`}
@@ -109,8 +104,22 @@ const DonationButton = () => {
           ) : (
             <div className="space-y-4 py-4">
               <div className="space-y-2">
+                <label htmlFor="donor-phone" className="text-sm font-medium text-foreground">
+                  Your {providers[selected].name} number
+                </label>
+                <Input
+                  id="donor-phone"
+                  type="tel"
+                  placeholder="e.g. 0771234567"
+                  value={phoneNumber}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  className="text-lg h-12"
+                />
+              </div>
+
+              <div className="space-y-2">
                 <label htmlFor="donation-amount" className="text-sm font-medium text-foreground">
-                  Enter amount to donate (UGX)
+                  Amount to donate (UGX)
                 </label>
                 <Input
                   id="donation-amount"
@@ -129,7 +138,7 @@ const DonationButton = () => {
                 </Button>
                 <Button
                   onClick={handleDonate}
-                  disabled={!amount || Number(amount) < 500}
+                  disabled={!amount || Number(amount) < 500 || !phoneNumber || phoneNumber.length < 10}
                   className="flex-1 gap-2"
                 >
                   <Phone className="h-4 w-4" />
@@ -138,7 +147,7 @@ const DonationButton = () => {
               </div>
 
               <p className="text-xs text-muted-foreground text-center">
-                This will open your phone dialer with the USSD code. Confirm the payment with your PIN on your phone.
+                This will open your phone dialer with the USSD code. Confirm the payment with your PIN.
               </p>
             </div>
           )}

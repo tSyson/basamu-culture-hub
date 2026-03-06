@@ -88,6 +88,9 @@ const Navbar = () => {
             <Link to="/events" className="text-foreground hover:text-primary transition-colors">
               Events
             </Link>
+            <Link to="/admin" className="text-foreground hover:text-primary transition-colors">
+              Admin
+            </Link>
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -169,6 +172,13 @@ const Navbar = () => {
               onClick={() => setIsOpen(false)}
             >
               Events
+            </Link>
+            <Link
+              to="/admin"
+              className="block text-foreground hover:text-primary transition-colors"
+              onClick={() => setIsOpen(false)}
+            >
+              Admin
             </Link>
             {user ? (
               <div className="space-y-3 pt-2 border-t border-border">
