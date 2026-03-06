@@ -266,7 +266,7 @@ const Executives = () => {
                   <div className="flex flex-col items-center text-center space-y-3 md:space-y-4">
                     <div className="relative">
                       <Avatar className="w-20 h-20 md:w-24 md:h-24 border-4 border-primary">
-                        <AvatarImage src={exec.photo_url || undefined} alt={exec.name} className="object-cover" />
+                        <AvatarImage src={exec.photo_url || undefined} alt={exec.name} className="object-cover" loading="lazy" />
                         <AvatarFallback className="bg-primary text-primary-foreground text-xl md:text-2xl">
                           {exec.name.split(' ').map(n => n[0]).join('')}
                         </AvatarFallback>

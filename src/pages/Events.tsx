@@ -289,6 +289,7 @@ const Events = () => {
                       <video 
                         src={event.image_url} 
                         controls
+                        preload="metadata"
                         className="w-full h-full object-contain"
                       />
                     ) : (
@@ -296,6 +297,7 @@ const Events = () => {
                         src={event.image_url} 
                         alt={event.title}
                         className="w-full h-full object-cover"
+                        loading="lazy"
                       />
                     )}
                   </div>
